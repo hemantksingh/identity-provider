@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using IdentityServer4.Models;
-using IdentityServer4.Test;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +17,8 @@ namespace identity_provider
 
 			services.AddIdentityServer()
 				.AddDeveloperSigningCredential()
-				.AddTestUsers(new List<TestUser>())
-				.AddInMemoryClients(new List<Client>())
+				.AddTestUsers(SeedData.GetUsers())
+				.AddInMemoryClients(SeedData.GetClients())
 				.AddInMemoryIdentityResources(new List<IdentityResource>
 					{
 						new IdentityResources.OpenId(),
