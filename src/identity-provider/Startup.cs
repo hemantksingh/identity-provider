@@ -14,6 +14,8 @@ namespace identity_provider
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
+            services.AddMvc();
+
 			services.AddIdentityServer()
 				.AddDeveloperSigningCredential()
 				.AddTestUsers(new List<TestUser>())
@@ -36,7 +38,9 @@ namespace identity_provider
 				app.UseDeveloperExceptionPage();
 			}
 
-			app.UseIdentityServer();
+            app.UseIdentityServer();
+			app.UseStaticFiles();
+            app.UseMvcWithDefaultRoute();
 		}
 	}
 }
