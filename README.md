@@ -1,9 +1,5 @@
 # IDP using IdentityServer 4
 
-```sh
-curl http://localhost:49842/.well-known/openid-configuration
-```
-
 ## Requirements
 
 * dotnet core `choco install dotnetcore-sdk -v`
@@ -15,7 +11,10 @@ curl http://localhost:49842/.well-known/openid-configuration
 
 ## Run
 
-`make run`
+```sh
+make run
+curl http://localhost:49842/.well-known/openid-configuration
+```
 
 ## Test
 
