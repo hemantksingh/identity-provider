@@ -39,7 +39,26 @@ namespace identity_provider
 		    };
 	    }
 
-	    public static List<Client> GetClients()
+	    public static IEnumerable<IdentityResource> GetIdentityResources()
+	    {
+		    return new List<IdentityResource>
+		    {
+			    new IdentityResources.OpenId(),
+			    new IdentityResources.Profile(),
+			    new IdentityResources.Address(),
+			    new IdentityResource("roles", "Your role(s)", new List<string> {"role"})
+		    };
+	    }
+
+	    public static IEnumerable<ApiResource> GetApiResources()
+	    {
+		    return new List<ApiResource>
+		    {
+			    new ApiResource("resourceapi", "Resource API")
+		    };
+	    }
+
+	    public static IEnumerable<Client> GetClients()
 	    {
 		    return new List<Client>
 		    {
@@ -59,7 +78,10 @@ namespace identity_provider
 				    AllowedScopes =
 				    {
 					    IdentityServerConstants.StandardScopes.OpenId,
-					    IdentityServerConstants.StandardScopes.Profile
+					    IdentityServerConstants.StandardScopes.Profile,
+						IdentityServerConstants.StandardScopes.Address,
+						"roles",
+						"resourceapi"
 				    },
 				    ClientSecrets =
 				    {

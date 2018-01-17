@@ -19,11 +19,8 @@ namespace identity_provider
 				.AddDeveloperSigningCredential()
 				.AddTestUsers(SeedData.GetUsers())
 				.AddInMemoryClients(SeedData.GetClients())
-				.AddInMemoryIdentityResources(new List<IdentityResource>
-					{
-						new IdentityResources.OpenId(),
-						new IdentityResources.Profile()
-					});
+				.AddInMemoryIdentityResources(SeedData.GetIdentityResources())
+				.AddInMemoryApiResources(SeedData.GetApiResources());
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

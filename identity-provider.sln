@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "identity-provider", "src\identity-provider\identity-provider.csproj", "{E1CE250E-8BB1-4505-BB35-CE2EB0792C13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client-webapp", "src\client-webapp\client-webapp.csproj", "{200814AF-5D21-4129-90EE-65BD7A2EC364}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-webapp", "src\client-webapp\client-webapp.csproj", "{200814AF-5D21-4129-90EE-65BD7A2EC364}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "resource-api", "src\resource-api\resource-api.csproj", "{926D35A6-FB72-4445-B306-A951C5048F4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{200814AF-5D21-4129-90EE-65BD7A2EC364}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{200814AF-5D21-4129-90EE-65BD7A2EC364}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{200814AF-5D21-4129-90EE-65BD7A2EC364}.Release|Any CPU.Build.0 = Release|Any CPU
+		{926D35A6-FB72-4445-B306-A951C5048F4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{926D35A6-FB72-4445-B306-A951C5048F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{926D35A6-FB72-4445-B306-A951C5048F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{926D35A6-FB72-4445-B306-A951C5048F4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

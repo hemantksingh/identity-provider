@@ -36,6 +36,9 @@ namespace client_webapp
 					options.ResponseType = "code id_token";
 					options.Scope.Add("openid");
 					options.Scope.Add("profile");
+					options.Scope.Add("address");
+					options.Scope.Add("roles");
+					options.Scope.Add("resourceapi");
 					options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 					options.SaveTokens = true;
 					options.GetClaimsFromUserInfoEndpoint = true;
