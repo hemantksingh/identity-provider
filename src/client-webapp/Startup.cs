@@ -36,10 +36,10 @@ namespace client_webapp
 					options.ResponseType = "code id_token";
 					options.Scope.Add("openid");
 					options.Scope.Add("profile");
+					options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 					options.SaveTokens = true;
 					options.GetClaimsFromUserInfoEndpoint = true;
 					options.UseTokenLifetime = false;
-					options.CallbackPath = "/callback";
 					options.TokenValidationParameters = new TokenValidationParameters
 					{
 						NameClaimType = "name"

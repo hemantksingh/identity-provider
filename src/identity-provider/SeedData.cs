@@ -50,8 +50,12 @@ namespace identity_provider
 				    AllowedGrantTypes = GrantTypes.Hybrid,
 				    RedirectUris = new List<string>
 				    {
-					    "https://localhost:44305/callback"
+					    "https://localhost:44305/signin-oidc"
 				    },
+					PostLogoutRedirectUris = new List<string>
+					{
+						"https://localhost:44305/signout-callback-oidc"
+					},
 				    AllowedScopes =
 				    {
 					    IdentityServerConstants.StandardScopes.OpenId,
