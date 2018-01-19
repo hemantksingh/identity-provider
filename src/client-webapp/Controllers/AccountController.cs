@@ -56,7 +56,7 @@ namespace client_webapp.Controllers
 			catch (HttpException e)
 			{
 				if (e.StatusCode == HttpStatusCode.Unauthorized || e.StatusCode == HttpStatusCode.Forbidden)
-					return RedirectToAction("Index", "Home");
+					return RedirectToAction("AccessDenied", "Authorization");
 
 				throw;
 			}
