@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -15,6 +13,13 @@ namespace client_webapp.Controllers
 {
 	public class AccountController : Controller
 	{
+		private readonly HttpClient _client;
+
+		public AccountController(HttpClient client)
+		{
+			_client = client;
+		}
+
 		public IActionResult Login()
 		{
 			if (!HttpContext.User.Identity.IsAuthenticated)
@@ -39,14 +44,22 @@ namespace client_webapp.Controllers
 		public async Task<IActionResult> Claims()
 		{
 			var token = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+			try
+			{
+				string json = await _client
+					.AuthorizationHeader("Bearer", token)
+					.GetStringAsync(new Uri("https://localhost:44357/api/identity"));
+				ViewBag.Json = JArray.Parse(json).ToString();
 
-			var client = new HttpClient { BaseAddress = new Uri("https://localhost:44357/") };
-			client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-			string json = await client.GetStringAsync("api/identity");
+				return View();
+			}
+			catch (HttpException e)
+			{
+				if (e.StatusCode == HttpStatusCode.Unauthorized || e.StatusCode == HttpStatusCode.Forbidden)
+					return RedirectToAction("Index", "Home");
 
-			ViewBag.Json = JArray.Parse(json).ToString();
-
-			return View();
+				throw;
+			}
 		}
 	}
 }
