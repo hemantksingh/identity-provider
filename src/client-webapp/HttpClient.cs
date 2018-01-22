@@ -25,7 +25,7 @@ namespace client_webapp
 
 		public async Task<string> GetStringAsync(Uri url)
 		{
-			HttpResponseMessage response = await Invoke(url); 
+			HttpResponseMessage response = await Get(url); 
 			return response.IsSuccessStatusCode
 					? await response.Content.ReadAsStringAsync()
 					: throw new HttpException(url, response);
@@ -33,20 +33,20 @@ namespace client_webapp
 
 		public async Task<T> GetAsync<T>(Uri url)
 		{
-			HttpResponseMessage response = await Invoke(url);
+			HttpResponseMessage response = await Get(url);
 
 			return response.IsSuccessStatusCode
 				? JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync())
 				: throw new HttpException(url, response);
 		}
 
-		private async Task<HttpResponseMessage> Invoke(Uri url)
+		private async Task<HttpResponseMessage> Get(Uri url)
 		{
 			HttpResponseMessage response;
 			try
 			{
-				response = await _httpClient.GetAsync(url);
 				_logger.LogInformation($"Requesting url {url}");
+				response = await _httpClient.GetAsync(url);
 			}
 			catch (Exception ex)
 			{
