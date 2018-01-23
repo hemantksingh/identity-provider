@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using identity_provider.Quickstart.Users;
 using Microsoft.AspNetCore.Authentication;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -29,10 +30,11 @@ namespace IdentityServer4.Quickstart.UI
     [SecurityHeaders]
     public class AccountController : Controller
     {
-        private readonly TestUserStore _users;
-        private readonly IIdentityServerInteractionService _interaction;
+        private readonly TestUserStore _users = new TestUserStore(TestUsers.Users);
+		private readonly IIdentityServerInteractionService _interaction;
         private readonly IEventService _events;
-        private readonly AccountService _account;
+	    private readonly UserRepository _userRepository;
+	    private readonly AccountService _account;
 
         public AccountController(
             IIdentityServerInteractionService interaction,
@@ -40,13 +42,12 @@ namespace IdentityServer4.Quickstart.UI
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationSchemeProvider schemeProvider,
             IEventService events,
-            TestUserStore users = null)
+            UserRepository userRepository)
         {
-            // if the TestUserStore is not in DI, then we'll just use the global users collection
-            _users = users ?? new TestUserStore(TestUsers.Users);
             _interaction = interaction;
             _events = events;
-            _account = new AccountService(interaction, httpContextAccessor, schemeProvider, clientStore);
+	        _userRepository = userRepository;
+	        _account = new AccountService(interaction, httpContextAccessor, schemeProvider, clientStore);
         }
 
         /// <summary>
@@ -98,9 +99,9 @@ namespace IdentityServer4.Quickstart.UI
             if (ModelState.IsValid)
             {
                 // validate username/password against in-memory store
-                if (_users.ValidateCredentials(model.Username, model.Password))
+                if (_userRepository.CredentialsValid(model.Username, model.Password))
                 {
-                    var user = _users.FindByUsername(model.Username);
+                    var user = _userRepository.GetByUsername(model.Username);
                     await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username));
 
                     // only set explicit expiration here if user chooses "remember me". 
@@ -177,23 +178,17 @@ namespace IdentityServer4.Quickstart.UI
                     }
 
                     await HttpContext.SignInAsync(
-                        IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme,
+                        IdentityServerConstants.ExternalCookieAuthenticationScheme,
                         new ClaimsPrincipal(id),
                         props);
                     return Redirect(props.RedirectUri);
                 }
-                else
-                {
-                    // challenge/trigger windows auth
-                    return Challenge(AccountOptions.WindowsAuthenticationSchemeName);
-                }
+	            // challenge/trigger windows auth
+	            return Challenge(AccountOptions.WindowsAuthenticationSchemeName);
             }
-            else
-            {
-                // start challenge and roundtrip the return URL
-                props.Items.Add("scheme", provider);
-                return Challenge(props, provider);
-            }
+	        // start challenge and roundtrip the return URL
+	        props.Items.Add("scheme", provider);
+	        return Challenge(props, provider);
         }
 
         /// <summary>
@@ -203,7 +198,7 @@ namespace IdentityServer4.Quickstart.UI
         public async Task<IActionResult> ExternalLoginCallback()
         {
             // read external identity from the temporary cookie
-            var result = await HttpContext.AuthenticateAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
+            var result = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
             if (result?.Succeeded != true)
             {
                 throw new Exception("External authentication error");

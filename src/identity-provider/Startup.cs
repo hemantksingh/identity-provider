@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using IdentityServer4.Models;
+﻿using identity_provider.Quickstart.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,18 +12,20 @@ namespace identity_provider
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-            services.AddMvc();
-
+			services.AddSingleton<UserRepository>();
+			services.AddMvc();
+			
 			services.AddIdentityServer()
 				.AddDeveloperSigningCredential()
-				.AddTestUsers(SeedData.GetUsers())
+				.AddUserStore()
 				.AddInMemoryClients(SeedData.GetClients())
 				.AddInMemoryIdentityResources(SeedData.GetIdentityResources())
 				.AddInMemoryApiResources(SeedData.GetApiResources());
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
+			ILoggerFactory loggerFactory, UserRepository repository)
 		{
 			loggerFactory.AddConsole();
 			loggerFactory.AddDebug();
@@ -37,9 +38,11 @@ namespace identity_provider
 				app.UseDeveloperExceptionPage();
 			}
 
-            app.UseIdentityServer();
+			repository.AddInitialUsers(SeedData.GetUsers());
+
+			app.UseIdentityServer();
 			app.UseStaticFiles();
-            app.UseMvcWithDefaultRoute();
+			app.UseMvcWithDefaultRoute();
 		}
 	}
 }
