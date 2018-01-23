@@ -19,3 +19,7 @@ curl http://localhost:49842/.well-known/openid-configuration
 ## Test
 
 `make test`
+
+## Migrate Database
+
+`make migrate-db`
