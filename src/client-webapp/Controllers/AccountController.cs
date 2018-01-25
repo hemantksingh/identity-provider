@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -7,7 +8,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Newtonsoft.Json.Linq;
 
 namespace client_webapp.Controllers
 {
@@ -46,10 +46,9 @@ namespace client_webapp.Controllers
 			var token = await HttpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
 			try
 			{
-				string json = await _client
+				ViewBag.AccessTokenClaims = await _client
 					.AuthorizationHeader("Bearer", token)
-					.GetStringAsync(new Uri("https://localhost:44357/api/identity"));
-				ViewBag.Json = JArray.Parse(json).ToString();
+					.GetAsync<IEnumerable<ClaimViewModel>>(new Uri("https://localhost:44357/api/identity"));
 
 				return View();
 			}
@@ -61,5 +60,11 @@ namespace client_webapp.Controllers
 				throw;
 			}
 		}
+	}
+
+	public class ClaimViewModel
+	{
+		public string Type;
+		public string Value;
 	}
 }

@@ -1,5 +1,5 @@
 ﻿@{
-	ViewData["Title"] = "My claims";
+	ViewData["Title"] = "Identity Token claims";
 }
 <h2>@ViewData["Title"]</h2>
 
@@ -21,6 +21,22 @@
 	</tbody>
 </table>
 
-<h2>Access Token Claims</h2>
+<h2>Access Token Claims (from Resource Server API)</h2>
 
-<pre>@ViewBag.Json</pre>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>Claim</th>
+			<th>Value</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var claim in ViewBag.AccessTokenClaims)
+		{
+			<tr>
+				<td>@claim.Type</td>
+				<td>@claim.Value</td>
+			</tr>
+		}
+	</tbody>
+</table>

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
+using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
@@ -14,26 +15,31 @@ namespace identity_provider
 		    {
 			    new TestUser
 			    {
-				    SubjectId = "d860efca-22d9-47fd-8249-791ba61b07c7",
+				    SubjectId = "818727",
 				    Username = "Jawan",
 				    Password = "password",
-
 				    Claims = new List<Claim>
 				    {
-					    new Claim("given_name", "Jawan"),
-					    new Claim("family_name", "Kisan"),
+					    new Claim(JwtClaimTypes.Name, "Jawan Kisan"),
+						new Claim(JwtClaimTypes.GivenName, "Jawan"),
+					    new Claim(JwtClaimTypes.FamilyName, "Kisan"),
+					    new Claim(JwtClaimTypes.Address, @"{ 'street_address': '10 Kisaan Marg', 'locality': 'Surajpur', 'postal_code': 201301, 'country': 'India' }", IdentityServerConstants.ClaimValueTypes.Json),
+					    new Claim(JwtClaimTypes.Role, "FreeUser")
 				    }
 			    },
 			    new TestUser
 			    {
-				    SubjectId = "b7539694-97e7-4dfe-84da-b4256e1ff5c7",
-				    Username = "Claire",
-				    Password = "password",
+				    SubjectId = "818728",
+				    Username = "Jag",
+				    Password = "p",
 
 				    Claims = new List<Claim>
 				    {
-					    new Claim("given_name", "Claire"),
-					    new Claim("family_name", "Underwood"),
+					    new Claim(JwtClaimTypes.Name, "Jag Jivan"),
+					    new Claim(JwtClaimTypes.GivenName, "Jag"),
+					    new Claim(JwtClaimTypes.FamilyName, "Jivan"),
+					    new Claim(JwtClaimTypes.Address, @"{ 'street_address': '20 Vikas Marg', 'locality': 'Hisaar', 'postal_code': 201307, 'country': 'India' }", IdentityServerConstants.ClaimValueTypes.Json),
+						new Claim(JwtClaimTypes.Role, "PayingUser")
 				    }
 			    }
 		    };
@@ -54,7 +60,7 @@ namespace identity_provider
 	    {
 		    return new List<ApiResource>
 		    {
-			    new ApiResource("resourceapi", "Resource API")
+			    new ApiResource("resourceapi", "Resource API", new List<string>{"role"})
 		    };
 	    }
 
@@ -67,6 +73,7 @@ namespace identity_provider
 				    ClientName = "WebApp Client",
 				    ClientId = "client-webapp",
 				    AllowedGrantTypes = GrantTypes.Hybrid,
+					RequireConsent = false,
 				    RedirectUris = new List<string>
 				    {
 					    "https://localhost:44305/signin-oidc"
