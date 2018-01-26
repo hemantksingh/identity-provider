@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 
 namespace identity_provider.Quickstart.Users
 {
@@ -8,6 +10,12 @@ namespace identity_provider.Quickstart.Users
 		public string Username;
 		public string Password;
 		public bool IsActive;
-		public List<UserClaim> UserClaims = new List<UserClaim>();
+		public IEnumerable<Claim> Claims = new List<Claim>();
+
+		public User AddClaim(Claim claim)
+		{
+			Claims.ToList().Add(claim);
+			return this;
+		}
 	}
 }

@@ -23,6 +23,7 @@ namespace identity_provider
 					    new Claim(JwtClaimTypes.Name, "Jawan Kisan"),
 						new Claim(JwtClaimTypes.GivenName, "Jawan"),
 					    new Claim(JwtClaimTypes.FamilyName, "Kisan"),
+					    new Claim(JwtClaimTypes.Email, "jawan@kisan.com"),
 					    new Claim(JwtClaimTypes.Address, @"{ 'street_address': '10 Kisaan Marg', 'locality': 'Surajpur', 'postal_code': 201301, 'country': 'India' }", IdentityServerConstants.ClaimValueTypes.Json),
 					    new Claim(JwtClaimTypes.Role, "FreeUser")
 				    }
@@ -38,6 +39,7 @@ namespace identity_provider
 					    new Claim(JwtClaimTypes.Name, "Jag Jivan"),
 					    new Claim(JwtClaimTypes.GivenName, "Jag"),
 					    new Claim(JwtClaimTypes.FamilyName, "Jivan"),
+					    new Claim(JwtClaimTypes.Email, "jag@jivan.com"),
 					    new Claim(JwtClaimTypes.Address, @"{ 'street_address': '20 Vikas Marg', 'locality': 'Hisaar', 'postal_code': 201307, 'country': 'India' }", IdentityServerConstants.ClaimValueTypes.Json),
 						new Claim(JwtClaimTypes.Role, "PayingUser")
 				    }

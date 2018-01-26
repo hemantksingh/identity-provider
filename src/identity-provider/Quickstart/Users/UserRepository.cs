@@ -71,7 +71,7 @@ namespace identity_provider.Quickstart.Users
 						if (!usersByUsername.TryGetValue(user.Username, out var u))
 							usersByUsername.Add(user.Username, u = user);
 
-						u.UserClaims.Add(claim);
+						u.AddClaim(new Claim(claim.Type, claim.Value));
 						return u;
 					},
 					queryFilter?.Param);
@@ -109,7 +109,7 @@ namespace identity_provider.Quickstart.Users
 						},
 						transaction);
 
-					foreach (var claim in user.UserClaims)
+					foreach (var claim in user.Claims)
 					{
 						connection.Execute(
 							"INSERT INTO UserClaims VALUES(@Id, @SubjectId, @Type, @Value)",
@@ -144,11 +144,7 @@ namespace identity_provider.Quickstart.Users
 					Username = testUser.Username,
 					Password = testUser.Password,
 					IsActive = testUser.IsActive,
-					UserClaims = testUser.Claims.Select(claim => new UserClaim
-					{
-						Type = claim.Type,
-						Value = claim.Value
-					}).ToList()
+					Claims = testUser.Claims.ToList()
 				});
 			}
 		}
