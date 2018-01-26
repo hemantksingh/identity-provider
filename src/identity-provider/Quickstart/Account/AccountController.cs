@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using identity_provider.Quickstart.UI;
 using identity_provider.Quickstart.Users;
 using Microsoft.AspNetCore.Authentication;
 using IdentityServer4.Events;
@@ -328,5 +329,43 @@ namespace IdentityServer4.Quickstart.UI
 
             return View("LoggedOut", vm);
         }
+
+		[HttpGet]
+	    public IActionResult Register(string returnUrl)
+		{
+			var viewModel = new RegisterViewModel {ReturnUrl = returnUrl};
+			return View(viewModel);
+	    }
+
+	    [HttpPost]
+		[ValidateAntiForgeryToken]
+	    public async Task<IActionResult> Register(RegisterViewModel model)
+	    {
+		    if (!ModelState.IsValid)
+			    return View(model);
+		    var user = new User
+		    {
+			    SubjectId = Guid.NewGuid().ToString(),
+			    Username = model.Username,
+			    Password = model.Password,
+			    IsActive = true,
+				UserClaims = new List<UserClaim>
+				{
+					new UserClaim { Type = JwtClaimTypes.GivenName, Value = model.Firstname},
+					new UserClaim { Type = JwtClaimTypes.FamilyName, Value = model.Lastname},
+					new UserClaim { Type = JwtClaimTypes.Address, Value = model.Address},
+					new UserClaim { Type = JwtClaimTypes.Email, Value = model.Email},
+					new UserClaim { Type = JwtClaimTypes.Role, Value = "FreeUser"}
+				}
+		    };
+			_userRepository.AddUser(user);
+
+		    await HttpContext.SignInAsync(user.SubjectId, user.Username);
+
+		    if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl))
+			    return Redirect(model.ReturnUrl);
+
+		    return Redirect("~/");
+	    }
     }
 }

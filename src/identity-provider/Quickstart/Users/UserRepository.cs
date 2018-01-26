@@ -99,7 +99,13 @@ namespace identity_provider.Quickstart.Users
 					{
 						connection.Execute(
 							"INSERT INTO UserClaims VALUES(@Id, @SubjectId, @Type, @Value)",
-							claim,
+							new
+							{
+								Id = claim.Id ?? Guid.NewGuid().ToString(),
+								user.SubjectId,
+								claim.Type,
+								claim.Value
+							},
 							transaction);
 					}
 
@@ -108,6 +114,11 @@ namespace identity_provider.Quickstart.Users
 			}
 		}
 
+		/// <summary>
+		/// TODO: Implement GetBySubjectId
+		/// </summary>
+		/// <param name="subjectId"></param>
+		/// <returns></returns>
 		public bool IsUserActive(string subjectId)
 		{
 			return true;
