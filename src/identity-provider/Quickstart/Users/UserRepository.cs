@@ -8,6 +8,18 @@ using IdentityServer4.Test;
 
 namespace identity_provider.Quickstart.Users
 {
+	public class QueryFilter
+	{
+		public QueryFilter(object param, string clause)
+		{
+			Param = param;
+			Clause = clause;
+		}
+
+		public object Param { get; }
+		public string Clause { get; }
+	}
+
 	public class UserRepository
 	{
 		private static SqlConnection GetConnection()
@@ -20,20 +32,7 @@ namespace identity_provider.Quickstart.Users
 
 		public IEnumerable<User> GetAllUsers()
 		{
-			string sql = "SELECT * FROM Users; SELECT * FROM UserClaims";
-
-			using (var connection = GetConnection())
-			{
-				SqlMapper.GridReader reader = connection.QueryMultiple(sql);
-
-				IEnumerable<User> users = reader.Read<User>();
-				IEnumerable<UserClaim> claims = reader.Read<UserClaim>();
-
-				foreach (var user in users)
-					user.UserClaims.AddRange(claims.Where(claim => claim.SubjectId == user.SubjectId));
-
-				return users;
-			}
+			return GetUsers();
 		}
 
 		public bool CredentialsValid(string username, string password)
@@ -42,16 +41,31 @@ namespace identity_provider.Quickstart.Users
 			return user != null && user.Password.Equals(password);
 		}
 
-		
 		public User GetByUsername(string username)
+		{
+			var queryParam = new {username};
+			var queryFilter = new QueryFilter(queryParam, "WHERE Users.Username = @Username");
+			return GetUsers(queryFilter).FirstOrDefault();
+		}
+
+		public User GetBySubjectId(string subjectId)
+		{
+			var queryParam = new {subjectId};
+			var queryFilter = new QueryFilter(queryParam, "WHERE Users.SubjectId = @SubjectId");
+			return GetUsers(queryFilter).FirstOrDefault();
+		}
+
+		private static IEnumerable<User> GetUsers(QueryFilter queryFilter = null)
 		{
 			var usersByUsername = new Dictionary<string, User>();
 			using (var connection = GetConnection())
 			{
+				const string sql = "SELECT * FROM Users " +
+				                   "LEFT JOIN UserClaims " +
+				                   "ON Users.SubjectId = UserClaims.SubjectId";
+
 				connection.Query<User, UserClaim, User>(
-					"SELECT * FROM Users u " +
-					"INNER JOIN UserClaims uc ON u.SubjectId = uc.SubjectId " +
-					"WHERE u.Username = @Username",
+					queryFilter != null ? $"{sql}  {queryFilter.Clause}" : sql,
 					(user, claim) =>
 					{
 						if (!usersByUsername.TryGetValue(user.Username, out var u))
@@ -60,9 +74,9 @@ namespace identity_provider.Quickstart.Users
 						u.UserClaims.Add(claim);
 						return u;
 					},
-					new {username});
+					queryFilter?.Param);
 
-				return usersByUsername.Values.FirstOrDefault();
+				return usersByUsername.Values.ToList();
 			}
 		}
 
@@ -71,8 +85,8 @@ namespace identity_provider.Quickstart.Users
 			using (var connection = GetConnection())
 			{
 				return connection.Query<UserClaim>(
-					"SELECT * FROM UserClaims WHERE SubjectId = @SubjectId", 
-					new {subjectId})
+						"SELECT * FROM UserClaims WHERE SubjectId = @SubjectId",
+						new {subjectId})
 					.Select(userClaim => new Claim(userClaim.Type, userClaim.Value));
 			}
 		}
@@ -101,7 +115,7 @@ namespace identity_provider.Quickstart.Users
 							"INSERT INTO UserClaims VALUES(@Id, @SubjectId, @Type, @Value)",
 							new
 							{
-								Id = claim.Id ?? Guid.NewGuid().ToString(),
+								Id = Guid.NewGuid().ToString(),
 								user.SubjectId,
 								claim.Type,
 								claim.Value
@@ -114,14 +128,9 @@ namespace identity_provider.Quickstart.Users
 			}
 		}
 
-		/// <summary>
-		/// TODO: Implement GetBySubjectId
-		/// </summary>
-		/// <param name="subjectId"></param>
-		/// <returns></returns>
 		public bool IsUserActive(string subjectId)
 		{
-			return true;
+			return GetBySubjectId(subjectId).IsActive;
 		}
 
 		public void AddInitialUsers(IEnumerable<TestUser> testUsers)
@@ -137,11 +146,9 @@ namespace identity_provider.Quickstart.Users
 					IsActive = testUser.IsActive,
 					UserClaims = testUser.Claims.Select(claim => new UserClaim
 					{
-						Id = Guid.NewGuid().ToString(),
-						SubjectId = testUser.SubjectId,
 						Type = claim.Type,
 						Value = claim.Value
-					}).ToList() 
+					}).ToList()
 				});
 			}
 		}
