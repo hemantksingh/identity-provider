@@ -11,10 +11,25 @@ namespace identity_provider.Quickstart.Users
 		public string Password;
 		public bool IsActive;
 		public IEnumerable<Claim> Claims = new List<Claim>();
+		public IEnumerable<ExternalProvider> ExternalProviders = new List<ExternalProvider>();
 
 		public User AddClaim(Claim claim)
 		{
-			Claims.ToList().Add(claim);
+			if (string.IsNullOrEmpty(claim.Type) || string.IsNullOrEmpty(claim.Value))
+				return this;
+			var claims = Claims.ToList();
+			claims.Add(claim);
+			Claims = claims;
+			return this;
+		}
+
+		public User AddProvider(ExternalProvider provider)
+		{
+			if (string.IsNullOrEmpty(provider.Name) || string.IsNullOrEmpty(provider.ProviderSubjectId))
+				return this;
+			var providers = ExternalProviders.ToList();
+			providers.Add(provider);
+			ExternalProviders = providers;
 			return this;
 		}
 	}

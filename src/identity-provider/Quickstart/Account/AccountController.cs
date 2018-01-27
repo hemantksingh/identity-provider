@@ -5,7 +5,6 @@
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
-using IdentityServer4.Test;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -31,7 +30,6 @@ namespace IdentityServer4.Quickstart.UI
 	[SecurityHeaders]
 	public class AccountController : Controller
 	{
-		private readonly TestUserStore _users = new TestUserStore(TestUsers.Users);
 		private readonly IIdentityServerInteractionService _interaction;
 		private readonly IEventService _events;
 		private readonly UserRepository _userRepository;
@@ -176,7 +174,7 @@ namespace IdentityServer4.Quickstart.UI
 						var groups = wi.Groups.Translate(typeof(NTAccount));
 						var roles = groups.Select(x => new Claim(JwtClaimTypes.Role, x.Value));
 						id.AddClaims(roles);
-					}
+					} 
 
 					await HttpContext.SignInAsync(
 						IdentityServerConstants.ExternalCookieAuthenticationScheme,
@@ -205,51 +203,18 @@ namespace IdentityServer4.Quickstart.UI
 				throw new Exception("External authentication error");
 			}
 
-			// retrieve claims of the external user
-			var externalUser = result.Principal;
-			var claims = externalUser.Claims.ToList();
-
-			// try to determine the unique id of the external user (issued by the provider)
-			// the most common claim type for that are the sub claim and the NameIdentifier
-			// depending on the external provider, some other claim type might be used
-			var userIdClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject);
-			if (userIdClaim == null)
-			{
-				userIdClaim = claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-			}
-			if (userIdClaim == null)
-			{
-				throw new Exception("Unknown userid");
-			}
-
-			// remove the user id claim from the claims collection and move to the userId property
-			// also set the name of the external authentication provider
-			claims.Remove(userIdClaim);
-			var provider = result.Properties.Items["scheme"];
-			var userId = userIdClaim.Value;
-
-			// this is where custom logic would most likely be needed to match your users from the
-			// external provider's authentication result, and provision the user as you see fit.
-			// 
-			// check if the external user is already provisioned
-			var user = _users.FindByExternalProvider(provider, userId);
+			var externalUser = new ExternalUser(result.Properties.Items["scheme"], result.Principal);
+			var provider = externalUser.Provider;
+			var userId = externalUser.UniqueIdentifier();
+			var user = _userRepository.GetUser(userId, provider);
 			if (user == null)
 			{
 				// this sample simply auto-provisions new external user
 				// another common approach is to start a registrations workflow first
-				user = _users.AutoProvisionUser(provider, userId, claims);
+				user = externalUser.ProvisionUser(userId);
+				_userRepository.AddUser(user);
 			}
-
-			var additionalClaims = new List<Claim>();
-
-			// if the external system sent a session id claim, copy it over
-			// so we can use it for single sign-out
-			var sid = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId);
-			if (sid != null)
-			{
-				additionalClaims.Add(new Claim(JwtClaimTypes.SessionId, sid.Value));
-			}
-
+			
 			// if the external provider issued an id_token, we'll keep it for signout
 			AuthenticationProperties props = null;
 			var id_token = result.Properties.GetTokenValue("id_token");
@@ -261,10 +226,10 @@ namespace IdentityServer4.Quickstart.UI
 
 			// issue authentication cookie for user
 			await _events.RaiseAsync(new UserLoginSuccessEvent(provider, userId, user.SubjectId, user.Username));
-			await HttpContext.SignInAsync(user.SubjectId, user.Username, provider, props, additionalClaims.ToArray());
+			await HttpContext.SignInAsync(user.SubjectId, user.Username, provider, props, externalUser.SessionIdClaim());
 
 			// delete temporary cookie used during external authentication
-			await HttpContext.SignOutAsync(IdentityServer4.IdentityServerConstants.ExternalCookieAuthenticationScheme);
+			await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
 
 			// validate return URL and redirect back to authorization endpoint or a local page
 			var returnUrl = result.Properties.Items["returnUrl"];

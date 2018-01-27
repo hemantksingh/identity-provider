@@ -61,17 +61,18 @@ namespace identity_provider.Quickstart.Users
 			using (var connection = GetConnection())
 			{
 				const string sql = "SELECT * FROM Users " +
-				                   "LEFT JOIN UserClaims " +
-				                   "ON Users.SubjectId = UserClaims.SubjectId";
+				                   "LEFT JOIN UserClaims ON Users.SubjectId = UserClaims.SubjectId " +
+				                   "LEFT JOIN ExternalProviders ON Users.SubjectId = ExternalProviders.SubjectId";
 
-				connection.Query<User, UserClaim, User>(
+				connection.Query<User, UserClaim, ExternalProvider, User>(
 					queryFilter != null ? $"{sql}  {queryFilter.Clause}" : sql,
-					(user, claim) =>
+					(user, claim, provider) =>
 					{
 						if (!usersByUsername.TryGetValue(user.Username, out var u))
 							usersByUsername.Add(user.Username, u = user);
 
 						u.AddClaim(new Claim(claim.Type, claim.Value));
+						u.AddProvider(provider);
 						return u;
 					},
 					queryFilter?.Param);
@@ -123,6 +124,20 @@ namespace identity_provider.Quickstart.Users
 							transaction);
 					}
 
+					foreach (var provider in user.ExternalProviders)
+					{
+						connection.Execute(
+							"INSERT INTO ExternalProviders VALUES(@Id, @SubjectId, @Name, @ProviderSubjectId)",
+							new
+							{
+								Id = Guid.NewGuid().ToString(),
+								user.SubjectId,
+								provider.Name,
+								provider.ProviderSubjectId
+							},
+							transaction);
+					}
+
 					transaction.Commit();
 				}
 			}
@@ -130,7 +145,9 @@ namespace identity_provider.Quickstart.Users
 
 		public bool IsUserActive(string subjectId)
 		{
-			return GetBySubjectId(subjectId).IsActive;
+			var user = GetBySubjectId(subjectId);
+
+			return user != null && user.IsActive;
 		}
 
 		public void AddInitialUsers(IEnumerable<TestUser> testUsers)
@@ -147,6 +164,14 @@ namespace identity_provider.Quickstart.Users
 					Claims = testUser.Claims.ToList()
 				});
 			}
+		}
+
+		public User GetUser(string userId, string providerName)
+		{
+			var queryParam = new { ProviderSubjectId = userId, Name = providerName };
+			var queryFilter = new QueryFilter(queryParam,
+				"WHERE ExternalProviders.ProviderSubjectId = @ProviderSubjectId AND ExternalProviders.Name = @Name");
+			return GetUsers(queryFilter).FirstOrDefault();
 		}
 	}
 }
