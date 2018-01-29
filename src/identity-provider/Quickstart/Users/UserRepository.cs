@@ -16,16 +16,23 @@ namespace identity_provider.Quickstart.Users
 			Clause = clause;
 		}
 
-		public object Param { get; }
-		public string Clause { get; }
+		public readonly object Param;
+		public readonly string Clause;
 	}
 
 	public class UserRepository
 	{
-		private static SqlConnection GetConnection()
+		private readonly string _connectionString;
+		private readonly IUnitOfWork _unitOfWork;
+
+		public UserRepository(string connectionString, Func<SqlConnection, IUnitOfWork> createUnitOfWork)
 		{
-			var connection = new SqlConnection(
-				@"Server=localhost;Database=identity;Data Source=.;Initial Catalog=identity;Integrated Security=True");
+			_connectionString = connectionString;
+			_unitOfWork = createUnitOfWork(GetConnection());
+		}
+		private SqlConnection GetConnection()
+		{
+			var connection = new SqlConnection(_connectionString);
 			connection.Open();
 			return connection;
 		}
@@ -55,7 +62,7 @@ namespace identity_provider.Quickstart.Users
 			return GetUsers(queryFilter).FirstOrDefault();
 		}
 
-		private static IEnumerable<User> GetUsers(QueryFilter queryFilter = null)
+		private IEnumerable<User> GetUsers(QueryFilter queryFilter = null)
 		{
 			var usersByUsername = new Dictionary<string, User>();
 			using (var connection = GetConnection())
@@ -94,7 +101,7 @@ namespace identity_provider.Quickstart.Users
 
 		public void AddUser(User user)
 		{
-			using (IUnitOfWork unitOfWork = new UnitOfWork(GetConnection()).Begin())
+			using (IUnitOfWork unitOfWork = _unitOfWork.Begin())
 			{
 				unitOfWork.Commit((connection, transaction) =>
 				{

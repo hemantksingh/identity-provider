@@ -1,4 +1,5 @@
-﻿using identity_provider.Quickstart.Users;
+﻿using identity_provider.Quickstart;
+using identity_provider.Quickstart.Users;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,12 +13,14 @@ namespace identity_provider
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddSingleton<UserRepository>();
+			const string connectionString = @"Server=localhost;Database=identity;Data Source=.;Initial Catalog=identity;Integrated Security=True";
+			var userRepository = new UserRepository(connectionString, conn => new UnitOfWork(conn));
+			services.AddTransient(provider => userRepository);
 			services.AddMvc();
 			
 			services.AddIdentityServer()
 				.AddDeveloperSigningCredential()
-				.AddUserStore()
+				.AddUserStore(userRepository)
 				.AddInMemoryClients(SeedData.GetClients())
 				.AddInMemoryIdentityResources(SeedData.GetIdentityResources())
 				.AddInMemoryApiResources(SeedData.GetApiResources());

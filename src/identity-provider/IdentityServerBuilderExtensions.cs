@@ -6,9 +6,9 @@ namespace identity_provider
 {
     public static class IdentityServerBuilderExtensions
     {
-	    public static IIdentityServerBuilder AddUserStore(this IIdentityServerBuilder builder)
+	    public static IIdentityServerBuilder AddUserStore(this IIdentityServerBuilder builder, UserRepository repository)
 	    {
-		    builder.Services.AddSingleton<UserRepository>();
+		    builder.Services.AddTransient(provider => repository);
 		    builder.AddProfileService<UserProfileService>();
 		    return builder;
 	    }
