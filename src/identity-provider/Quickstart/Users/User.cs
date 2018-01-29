@@ -11,7 +11,7 @@ namespace identity_provider.Quickstart.Users
 		public string Password;
 		public bool IsActive;
 		public IEnumerable<Claim> Claims = new List<Claim>();
-		public IEnumerable<ExternalProvider> ExternalProviders = new List<ExternalProvider>();
+		public IEnumerable<IdentityProvider> IdentityProviders = new List<IdentityProvider>();
 
 		public User AddClaim(Claim claim)
 		{
@@ -23,13 +23,13 @@ namespace identity_provider.Quickstart.Users
 			return this;
 		}
 
-		public User AddProvider(ExternalProvider provider)
+		public User AddProvider(IdentityProvider provider)
 		{
 			if (string.IsNullOrEmpty(provider.Name) || string.IsNullOrEmpty(provider.ProviderSubjectId))
 				return this;
-			var providers = ExternalProviders.ToList();
+			var providers = IdentityProviders.ToList();
 			providers.Add(provider);
-			ExternalProviders = providers;
+			IdentityProviders = providers;
 			return this;
 		}
 	}

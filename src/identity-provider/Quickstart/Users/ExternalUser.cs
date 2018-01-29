@@ -77,24 +77,17 @@ namespace identity_provider.Quickstart.Users
 			}
 
 			var sub = Guid.NewGuid().ToString();
-
-			// check if a display name is available, otherwise fallback to subject id
-			var name = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub;
-
-			// create new user
-			var user = new User
+		    return new User
 			{
 				SubjectId = sub,
-				Username = name,
+				Username = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub,
 				IsActive = true,
 				Claims = filtered,
-				ExternalProviders = new List<ExternalProvider>
+				IdentityProviders = new List<IdentityProvider>
 				{
-					new ExternalProvider { Name = Provider, ProviderSubjectId = userId}
+					new IdentityProvider { Name = Provider, ProviderSubjectId = userId}
 				}
 			};
-
-			return user;
 	    }
 
 	    public Claim SessionIdClaim()

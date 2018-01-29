@@ -45,7 +45,7 @@ namespace IdentityServer4.Quickstart.UI
 					EnableLocalLogin = false,
 					ReturnUrl = returnUrl,
 					Username = context?.LoginHint,
-					ExternalProviders = new[] {new ExternalProvider {AuthenticationScheme = context.IdP}}
+					IdentityProviders = new[] {new ExternalProvider {AuthenticationScheme = context.IdP}}
 				};
 			}
 
@@ -85,7 +85,7 @@ namespace IdentityServer4.Quickstart.UI
 				EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
 				ReturnUrl = returnUrl,
 				Username = context?.LoginHint,
-				ExternalProviders = providers.ToArray()
+				IdentityProviders = providers.ToArray()
 			};
 		}
 

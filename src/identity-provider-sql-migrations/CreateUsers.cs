@@ -20,7 +20,7 @@ namespace identity_provider_sql_migrations
 			    .WithColumn("Type").AsString(250).NotNullable()
 			    .WithColumn("Value").AsString(250).NotNullable();
 
-		    Create.Table("ExternalProviders")
+		    Create.Table("IdentityProviders")
 			    .WithColumn("Id").AsString(64).NotNullable().PrimaryKey()
 			    .WithColumn("SubjectId").AsString(64).NotNullable()
 			    .WithColumn("Name").AsString(250).NotNullable()
@@ -30,8 +30,8 @@ namespace identity_provider_sql_migrations
 			    .FromTable("UserCLaims").ForeignColumn("SubjectId")
 			    .ToTable("Users").PrimaryColumn("SubjectId");
 
-		    Create.ForeignKey("fk_Users_ExternalProviders_SubjectId")
-			    .FromTable("ExternalProviders").ForeignColumn("SubjectId")
+		    Create.ForeignKey("fk_Users_IdentityProviders_SubjectId")
+			    .FromTable("IdentityProviders").ForeignColumn("SubjectId")
 			    .ToTable("Users").PrimaryColumn("SubjectId");
 
 		}
@@ -40,7 +40,7 @@ namespace identity_provider_sql_migrations
 	    {
 			Delete.Table("Users");
 			Delete.Table("UserClaims");
-			Delete.Table("ExternalProviders");
+			Delete.Table("IdentityProviders");
 		}
     }
 }

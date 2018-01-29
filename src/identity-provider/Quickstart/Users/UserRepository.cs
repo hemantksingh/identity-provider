@@ -62,9 +62,9 @@ namespace identity_provider.Quickstart.Users
 			{
 				const string sql = "SELECT * FROM Users " +
 				                   "LEFT JOIN UserClaims ON Users.SubjectId = UserClaims.SubjectId " +
-				                   "LEFT JOIN ExternalProviders ON Users.SubjectId = ExternalProviders.SubjectId";
+				                   "LEFT JOIN IdentityProviders ON Users.SubjectId = IdentityProviders.SubjectId";
 
-				connection.Query<User, UserClaim, ExternalProvider, User>(
+				connection.Query<User, UserClaim, IdentityProvider, User>(
 					queryFilter != null ? $"{sql}  {queryFilter.Clause}" : sql,
 					(user, claim, provider) =>
 					{
@@ -124,10 +124,10 @@ namespace identity_provider.Quickstart.Users
 							transaction);
 					}
 
-					foreach (var provider in user.ExternalProviders)
+					foreach (var provider in user.IdentityProviders)
 					{
 						connection.Execute(
-							"INSERT INTO ExternalProviders VALUES(@Id, @SubjectId, @Name, @ProviderSubjectId)",
+							"INSERT INTO IdentityProviders VALUES(@Id, @SubjectId, @Name, @ProviderSubjectId)",
 							new
 							{
 								Id = Guid.NewGuid().ToString(),
@@ -170,7 +170,7 @@ namespace identity_provider.Quickstart.Users
 		{
 			var queryParam = new { ProviderSubjectId = userId, Name = providerName };
 			var queryFilter = new QueryFilter(queryParam,
-				"WHERE ExternalProviders.ProviderSubjectId = @ProviderSubjectId AND ExternalProviders.Name = @Name");
+				"WHERE IdentityProviders.ProviderSubjectId = @ProviderSubjectId AND IdentityProviders.Name = @Name");
 			return GetUsers(queryFilter).FirstOrDefault();
 		}
 	}

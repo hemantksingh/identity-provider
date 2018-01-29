@@ -1,6 +1,6 @@
 ﻿namespace identity_provider.Quickstart.Users
 {
-    public class ExternalProvider
+    public class IdentityProvider
     {
 	    public string Name;
 	    public string ProviderSubjectId;
