@@ -94,9 +94,9 @@ namespace identity_provider.Quickstart.Users
 
 		public void AddUser(User user)
 		{
-			using (var connection = GetConnection())
+			using (IUnitOfWork unitOfWork = new UnitOfWork(GetConnection()).Begin())
 			{
-				using (var transaction = connection.BeginTransaction())
+				unitOfWork.Commit((connection, transaction) =>
 				{
 					connection.Execute(
 						"INSERT INTO Users (SubjectId, Username, Password, IsActive)"
@@ -137,9 +137,7 @@ namespace identity_provider.Quickstart.Users
 							},
 							transaction);
 					}
-
-					transaction.Commit();
-				}
+				});
 			}
 		}
 
