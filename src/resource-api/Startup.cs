@@ -27,6 +27,17 @@ namespace resource_api
 		        });
 				
             services.AddMvc();
+
+            services.AddCors(options =>
+            {
+                // this defines a CORS policy called "default"
+                options.AddPolicy("default", policy =>
+                {
+                    policy.WithOrigins("http://localhost:52371")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,8 +47,8 @@ namespace resource_api
             {
                 app.UseDeveloperExceptionPage();
             }
-
-	        app.UseAuthentication();
+            app.UseCors("default");
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
