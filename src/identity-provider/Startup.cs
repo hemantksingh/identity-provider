@@ -14,13 +14,13 @@ namespace identity_provider
 		public void ConfigureServices(IServiceCollection services)
 		{
 			const string connectionString = @"Server=localhost;Database=identity;Data Source=.;Initial Catalog=identity;Integrated Security=True";
-			var userRepository = new UserRepository(connectionString, conn => new UnitOfWork(conn));
-			services.AddTransient(provider => userRepository);
+		    services.AddTransient(provider => new UserRepository(connectionString, conn => new UnitOfWork(conn)));
+
 			services.AddMvc();
 			
 			services.AddIdentityServer()
 				.AddDeveloperSigningCredential()
-				.AddUserStore(userRepository)
+				.AddUserStore()
 				.AddInMemoryClients(SeedData.GetClients())
 				.AddInMemoryIdentityResources(SeedData.GetIdentityResources())
 				.AddInMemoryApiResources(SeedData.GetApiResources());
