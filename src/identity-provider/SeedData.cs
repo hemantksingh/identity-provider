@@ -99,23 +99,24 @@ namespace identity_provider
 			    },
 		        // JavaScript Client
 		        new Client
-		        {
-		            ClientId = "js",
-		            ClientName = "JavaScript Client",
-		            AllowedGrantTypes = GrantTypes.Implicit,
-		            AllowAccessTokensViaBrowser = true,
+                {
+                    ClientId = "js",
+                    ClientName = "JavaScript Client",
+                    AllowedGrantTypes = GrantTypes.Implicit,
+                    AllowAccessTokensViaBrowser = true,
 
-		            RedirectUris =           { "http://localhost:52371/callback.html" },
-		            PostLogoutRedirectUris = { "http://localhost:52371/index.html" },
-		            AllowedCorsOrigins =     { "http://localhost:52371" },
+                    RedirectUris =           { "http://localhost:52371/callback.html" },
+                    PostLogoutRedirectUris = { "http://localhost:52371/index.html" },
+                    AllowedCorsOrigins =     { "http://localhost:52371" },
 
-		            AllowedScopes =
-		            {
-		                IdentityServerConstants.StandardScopes.OpenId,
-		                IdentityServerConstants.StandardScopes.Profile,
-		                "resourceapi"
+                    AllowedScopes =
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "resourceapi"
                     }
-		        },new Client
+                },
+                new Client
 		        {
 		            ClientId = "client",
 
@@ -130,9 +131,25 @@ namespace identity_provider
 
 		            // scopes that client has access to
 		            AllowedScopes = { "resourceapi" }
-		        }
+		        },
+		        new Client
+		        {
+		            ClientId = "jsforreal",
+		            ClientName = "JavaScript Client For Real",
+		            AllowedGrantTypes = GrantTypes.Implicit,
+		            AllowAccessTokensViaBrowser = true,
 
+		            RedirectUris =           { "http://localhost/callback.html" },
+		            PostLogoutRedirectUris = { "http://localhost" },
+		            AllowedCorsOrigins =     { "http://localhost" },
 
+		            AllowedScopes =
+		            {
+		                IdentityServerConstants.StandardScopes.OpenId,
+		                IdentityServerConstants.StandardScopes.Profile,
+		                "resourceapi"
+		            }
+                }
             };
 	    }
     }
