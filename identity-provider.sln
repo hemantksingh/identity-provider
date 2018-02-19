@@ -15,13 +15,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Makefile = Makefile
 		README.md = README.md
+		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-javascript", "javascript-client\client-javascript.csproj", "{745EF6B3-4833-4AAE-A3C9-08E916D781B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-javascript", "src\client-javascript\client-javascript.csproj", "{745EF6B3-4833-4AAE-A3C9-08E916D781B1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-console", "client-console\client-console.csproj", "{8ECAC2F7-BBFC-4415-9554-D9B430DC1C5D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-console", "src\client-console\client-console.csproj", "{8ECAC2F7-BBFC-4415-9554-D9B430DC1C5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api-gateway", "api-gateway\api-gateway.csproj", "{DE4C121C-35D2-48C0-9569-769B8E1D595F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api-gateway", "src\api-gateway\api-gateway.csproj", "{DE4C121C-35D2-48C0-9569-769B8E1D595F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
