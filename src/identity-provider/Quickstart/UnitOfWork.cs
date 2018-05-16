@@ -32,9 +32,25 @@ namespace identity_provider.Quickstart
 		public void Commit(Action<SqlConnection, SqlTransaction> doWork)
 		{
 			if (_transaction == null)
-				throw new InvalidOperationException($"{nameof(UnitOfWork)} needs to {nameof(Begin)} before {nameof(Commit)}");
-			doWork(_connection, _transaction);
-			_transaction.Commit();
+				throw new InvalidOperationException(
+					$"{nameof(UnitOfWork)} needs to {nameof(Begin).ToLower()} before {nameof(Commit).ToLower()}");
+			try
+			{
+				doWork(_connection, _transaction);
+				_transaction.Commit();
+			}
+			catch (Exception exception)
+			{
+				try
+				{
+					Rollback();
+				}
+				catch (Exception innerException)
+				{
+					throw new Exception($"Failed to {nameof(Rollback).ToLower()} transaction", innerException);
+				}
+				throw new Exception($"Failed to {nameof(Commit).ToLower()} transaction", exception);
+			}
 		}
 
 		public void Rollback()
@@ -42,6 +58,10 @@ namespace identity_provider.Quickstart
 			_transaction?.Rollback();
 		}
 
+		/// <summary>
+		/// Disposing the unit of work closes the sql connection, making the connection available to the connection pool
+		/// for it to be used again.
+		/// </summary>
 		public void Dispose()
 		{
 			_transaction?.Dispose();

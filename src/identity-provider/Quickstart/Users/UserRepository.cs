@@ -23,13 +23,20 @@ namespace identity_provider.Quickstart.Users
 	public class UserRepository
 	{
 		private readonly string _connectionString;
-		private readonly IUnitOfWork _unitOfWork;
+		private readonly Func<SqlConnection, IUnitOfWork> _createUnitOfWork;
 
 		public UserRepository(string connectionString, Func<SqlConnection, IUnitOfWork> createUnitOfWork)
 		{
 			_connectionString = connectionString;
-			_unitOfWork = createUnitOfWork(GetConnection());
+			_createUnitOfWork = createUnitOfWork;
 		}
+		/// <summary>
+		/// Creates a new sql connection per query. Closing the connection after finishing processing the query
+		/// does not actually close the physical connection but just returns it to the connection pool, managed
+		/// by dotnet. Let dotnet handle connection pooling:
+		/// https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-connection-pooling
+		/// </summary>
+		/// <returns></returns>
 		private SqlConnection GetConnection()
 		{
 			var connection = new SqlConnection(_connectionString);
@@ -101,7 +108,7 @@ namespace identity_provider.Quickstart.Users
 
 		public void AddUser(User user)
 		{
-			using (IUnitOfWork unitOfWork = _unitOfWork.Begin())
+			using (IUnitOfWork unitOfWork = _createUnitOfWork(GetConnection()).Begin())
 			{
 				unitOfWork.Commit((connection, transaction) =>
 				{
