@@ -8,7 +8,7 @@ install:
   - ps choco install make
   - set PATH=C:\ProgramData\chocolatey\lib\make\tools;%PATH%
   
-build:
+build_script:
   - ps $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
   - ps [System.Environment]::GetEnvironmentVariable("Path","Machine")
   - make build
