@@ -6,12 +6,9 @@ services:
 
 install:
   - ps choco install make
-  - set PATH=C:\ProgramData\chocolatey\lib\make\tools;%PATH%
-  - copy C:\ProgramData\chocolatey\lib\make\tools\bin\make.exe c:\MinGW\bin\make.exe
+  - set PATH=C:\ProgramData\chocolatey\lib\make\tools\bin;%PATH%
 
 build_script:
-  - ps $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
-  - ps [System.Environment]::GetEnvironmentVariable("Path","Machine")
   - make build
 
 after_build:
