@@ -6,6 +6,7 @@ services:
 
 install:
   - ps choco install make
+  - set PATH=C:\ProgramData\chocolatey\lib\make\tools;%PATH%
   
 before_build:
 - nuget restore
