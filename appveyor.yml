@@ -1,4 +1,14 @@
 image:
 - Visual Studio 2017
+
+services:
+  - mssql2017
+
+install:
+  - ps choco install make
+  
 before_build:
 - nuget restore
+
+after_test:
+-  make database USERID=sa DBSERVER="(local)\SQL2017" DBNAME=master
