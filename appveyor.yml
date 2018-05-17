@@ -6,7 +6,7 @@ services:
 
 install:
   - ps choco install make
-  - set PATH=C:\ProgramData\chocolatey\lib\make\tools\bin;%PATH%
+  - set PATH=C:\ProgramData\chocolatey\bin;%PATH%
 
 build_script:
   - make build
