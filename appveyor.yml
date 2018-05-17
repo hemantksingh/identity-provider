@@ -6,6 +6,7 @@ services:
 
 install:
   - ps choco install make
+  - Invoke-WebRequest -Uri "ftp://ftp.equation.com/make/64/make.exe" -OutFile C:\ProgramData\chocolatey\bin\make.exe
   - set PATH=C:\ProgramData\chocolatey\bin;%PATH%
 
 build_script:
