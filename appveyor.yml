@@ -5,7 +5,7 @@ services:
   - mssql2017
 
 install:
-  - ps choco install make --debug
+  - ps "choco install make --d"
   - set PATH=C:\ProgramData\chocolatey\bin;%PATH%
 
 before_build:
