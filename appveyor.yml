@@ -10,7 +10,7 @@ install:
   - set PATH=C:\ProgramData\chocolatey\bin;%PATH%
 
 before_build:
-  - make --version
+  - C:\ProgramData\chocolatey\bin\make --version
 
 build_script:
   - make build
