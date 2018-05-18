@@ -25,7 +25,7 @@ install:
           [Environment]::SetEnvironmentVariable($key, $newPath, "Machine")
         }
   - ps choco install make
-  - ps AddToPath "C:\ProgramData\chocolatey\lib\make\tools"
+  - ps AddToPath "C:\ProgramData\chocolatey\lib\make\tools\bin"
 
 before_build:
   - make --version
