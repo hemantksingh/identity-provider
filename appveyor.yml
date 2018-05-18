@@ -5,7 +5,8 @@ services:
   - mssql2017
 
 install:
-  - ps "choco install make --d"
+  - ps "choco install make"
+  - ps "Invoke-WebRequest -Uri ftp://ftp.equation.com/make/64/make.exe -OutFile C:\ProgramData\chocolatey\bin\make.exe"
   - set PATH=C:\ProgramData\chocolatey\bin;%PATH%
 
 before_build:
