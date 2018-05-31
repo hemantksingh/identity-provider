@@ -30,7 +30,7 @@ install:
   - ps AddToPath "c:\MinGW\bin"
 
 before_build:
-  - make --version
+  - ps make --version
 
 build_script:
   - make build
