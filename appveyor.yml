@@ -30,11 +30,10 @@ install:
   - ps AddToPath "c:\MinGW\bin"
 
 before_build:
-  - ps make --version
+  - cmd make --version
 
 build_script:
-  - make build
+  - cmd make build
 
 after_build:
-  - ps $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine")
-  - make database USERID=sa DBSERVER="(local)\SQL2017" DBNAME=master
+  - cmd make database USERID=sa DBSERVER="(local)\SQL2017" DBNAME=master
