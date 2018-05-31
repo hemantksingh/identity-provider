@@ -24,16 +24,16 @@ install:
           }
           [Environment]::SetEnvironmentVariable($key, $newPath, "Machine")
         }
-  - ps choco install make
-  - ps AddToPath "C:\ProgramData\chocolatey\lib\make\tools\bin"
-  - ps cp c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
-  - ps AddToPath "c:\MinGW\bin"
+  - ps: choco install make
+  - ps: AddToPath "C:\ProgramData\chocolatey\lib\make\tools\bin"
+  # - ps cp c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
+  # - ps AddToPath "c:\MinGW\bin"
 
 before_build:
-  - cmd make --version
+  - cmd: make --version
 
 build_script:
-  - cmd make build
+  - cmd: make build
 
 after_build:
-  - cmd make database USERID=sa DBSERVER="(local)\SQL2017" DBNAME=master
+  - cmd: make database USERID=sa DBSERVER="(local)\SQL2017" DBNAME=master
