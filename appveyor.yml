@@ -27,6 +27,7 @@ install:
   - ps choco install make
   - ps AddToPath "C:\ProgramData\chocolatey\lib\make\tools\bin"
   - ps cp c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
+  - ps AddToPath "c:\MinGW\bin"
 
 before_build:
   - make --version
