@@ -1,6 +1,7 @@
 obj
 .vs
 .vscode
+*.sln.DotSettings.user
 **/*/obj
 **/*/bin
 **/*/.vs
