@@ -28,7 +28,7 @@ curl http://localhost:49842/.well-known/openid-configuration
 
 ## Migrate Database
 
-`make migrate-db`
+`make database`
 
 ## Appveyor
 ![Build Status](https://ci.appveyor.com/api/projects/status/github/hemantksingh/identity-provider?branch=master&svg=true)
