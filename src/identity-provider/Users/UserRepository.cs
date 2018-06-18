@@ -111,11 +111,12 @@ namespace identity
 				unitOfWork.Commit((connection, transaction) =>
 				{
 					connection.Execute(
-						"INSERT INTO Users (SubjectId, Username, Password, IsActive)"
-						+ " VALUES(@SubjectId, @Username, @Password, @IsActive)",
+						"INSERT INTO Users (SubjectId, TenantId, Username, Password, IsActive)"
+						+ " VALUES(@SubjectId, @TenantId, @Username, @Password, @IsActive)",
 						new
 						{
 							user.SubjectId,
+							user.TenantId,
 							user.Username,
 							user.Password,
 							user.IsActive
@@ -160,7 +161,7 @@ namespace identity
 			return user != null && user.IsActive;
 		}
 
-		public void AddInitialUsers(IEnumerable<TestUser> testUsers)
+		public void AddInitialUsers(IEnumerable<TestUser> testUsers, Tenant tenant)
 		{
 			if (Enumerable.Any(GetAllUsers())) return;
 			foreach (var testUser in testUsers)
@@ -168,6 +169,7 @@ namespace identity
 				AddUser(new User
 				{
 					SubjectId = testUser.SubjectId,
+					TenantId = tenant.Id.ToString(),
 					Username = testUser.Username,
 					Password = testUser.Password,
 					IsActive = testUser.IsActive,

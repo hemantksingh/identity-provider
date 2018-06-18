@@ -1,4 +1,7 @@
-﻿using identity;
+﻿using System.Data.SqlClient;
+using System.Linq;
+using identity;
+using identity_provider.Tenants;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +17,12 @@ namespace identity_provider
 		{
 			const string connectionString = @"Server=localhost;Database=identity;Data Source=.;Initial Catalog=identity;Integrated Security=True";
 		    services.AddTransient(provider => new UserRepository(connectionString, conn => new UnitOfWork(conn)));
+			services.AddTransient(provider => new TenantRepository(() =>
+			{
+				var sqlConnection = new SqlConnection(connectionString);
+				sqlConnection.Open();
+				return sqlConnection;
+			}));
 
 			services.AddMvc();
 			
@@ -27,7 +36,9 @@ namespace identity_provider
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
-			ILoggerFactory loggerFactory, UserRepository repository)
+			ILoggerFactory loggerFactory, 
+			TenantRepository tenantRepository,
+			UserRepository userRepository)
 		{
 			loggerFactory.AddConsole();
 			loggerFactory.AddDebug();
@@ -40,7 +51,8 @@ namespace identity_provider
 				app.UseDeveloperExceptionPage();
 			}
 
-			repository.AddInitialUsers(SeedData.GetUsers());
+			var tenant = tenantRepository.AddTenant(SeedData.GetTenants().First());
+			userRepository.AddInitialUsers(SeedData.GetUsers(), tenant);
 
 			app.UseIdentityServer();
 			app.UseStaticFiles();
