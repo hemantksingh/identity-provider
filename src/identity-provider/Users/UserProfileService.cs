@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -19,8 +17,7 @@ namespace identity
 		{
 			var subjectId = context.Subject.GetSubjectId();
 			var claims = _userRepository.GetClaims(subjectId);
-			context.IssuedClaims = Enumerable.ToList<Claim>(claims);
-
+			context.AddRequestedClaims(claims);
 			return Task.FromResult(0);
 		}
 
