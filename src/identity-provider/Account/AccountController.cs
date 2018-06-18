@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using identity_provider;
 using identity_provider.Tenants;
 using IdentityModel;
 using IdentityServer4;
@@ -146,7 +147,7 @@ namespace identity
 		[HttpGet]
 		public async Task<IActionResult> ExternalLogin(string provider, string returnUrl)
 		{
-			var props = new AuthenticationProperties()
+			var props = new AuthenticationProperties
 			{
 				RedirectUri = UrlHelperExtensions.Action(Url, "ExternalLoginCallback"),
 				Items =
@@ -177,7 +178,7 @@ namespace identity
 						var groups = wi.Groups.Translate(typeof(NTAccount));
 						var roles = groups.Select(x => new Claim(JwtClaimTypes.Role, x.Value));
 						id.AddClaims(roles);
-					} 
+					}
 
 					await HttpContext.SignInAsync(
 						IdentityServerConstants.ExternalCookieAuthenticationScheme,
@@ -214,10 +215,13 @@ namespace identity
 			{
 				// this sample simply auto-provisions new external user
 				// another common approach is to start a registrations workflow first
-				user = externalUser.ProvisionUser(userId);
+				var context = _interaction.GetAuthorizationContextAsync(result.Properties.Items["returnUrl"]);
+				var tenant = _tenantRepository.GetTenantByName(context.Result.Tenant);
+
+				user = externalUser.ProvisionUser(userId, tenant.Id.ToString());
 				_userRepository.AddUser(user);
 			}
-			
+
 			// if the external provider issued an id_token, we'll keep it for signout
 			AuthenticationProperties props = null;
 			var id_token = AuthenticationTokenExtensions.GetTokenValue(result.Properties, "id_token");
@@ -229,7 +233,9 @@ namespace identity
 
 			// issue authentication cookie for user
 			await _events.RaiseAsync(new UserLoginSuccessEvent(provider, userId, user.SubjectId, user.Username));
-			await HttpContext.SignInAsync(user.SubjectId, user.Username, provider, props, externalUser.SessionIdClaim());
+			await HttpContext.SignInAsync(user.SubjectId, user.Username, provider, props, 
+				externalUser.SessionIdClaim(), 
+				user.Claims.First(x => x.Type == ClaimType.TenantId));
 
 			// delete temporary cookie used during external authentication
 			await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
@@ -325,15 +331,17 @@ namespace identity
 					new Claim(JwtClaimTypes.Name, $"{model.Firstname}  {model.Lastname}"),
 					new Claim(JwtClaimTypes.GivenName, model.Firstname),
 					new Claim(JwtClaimTypes.FamilyName, model.Lastname),
-					new Claim(JwtClaimTypes.Address, $"{{ 'street_address': '{model.Address}', 'locality': 'Default', 'postal_code': 000000, 'country': '{model.Country}' }}", IdentityServerConstants.ClaimValueTypes.Json),
+					new Claim(JwtClaimTypes.Address,
+						$"{{ 'street_address': '{model.Address}', 'locality': 'Default', 'postal_code': 000000, 'country': '{model.Country}' }}",
+						IdentityServerConstants.ClaimValueTypes.Json),
 					new Claim(JwtClaimTypes.Email, model.Email),
 					new Claim(JwtClaimTypes.Role, "FreeUser"),
-					new Claim("tid", tenant.Id.ToString())
+					new Claim(ClaimType.TenantId, tenant.Id.ToString())
 				}
 			};
 			_userRepository.AddUser(user);
 
-			await HttpContext.SignInAsync(user.SubjectId, user.Username, user.TenantId);
+			await HttpContext.SignInAsync(user.SubjectId, user.Username, new Claim(ClaimType.TenantId, tenant.Id.ToString()));
 
 			if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl))
 				return Redirect(model.ReturnUrl);

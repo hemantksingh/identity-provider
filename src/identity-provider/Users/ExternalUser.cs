@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using identity_provider;
 using IdentityModel;
 
 namespace identity
@@ -35,11 +36,11 @@ namespace identity
 		           ?? Enumerable.FirstOrDefault<Claim>(_principal.Claims, x => x.Type == ClaimTypes.NameIdentifier);
 	    }
 
-	    public User ProvisionUser(string userId)
+	    public User ProvisionUser(string userId, string tenantId)
 	    {
-			var filtered = new List<Claim>();
+		    var filtered = new List<Claim> {new Claim(ClaimType.TenantId, tenantId)};
 
-			foreach (var claim in _principal.Claims)
+		    foreach (var claim in _principal.Claims)
 			{
 				// if the external system sends a display name - translate that to the standard OIDC name claim
 				if (claim.Type == ClaimTypes.Name)
@@ -80,6 +81,7 @@ namespace identity
 		    return new User
 			{
 				SubjectId = sub,
+				TenantId = tenantId,
 				Username = filtered.FirstOrDefault(c => c.Type == JwtClaimTypes.Name)?.Value ?? sub,
 				IsActive = true,
 				Claims = filtered,
