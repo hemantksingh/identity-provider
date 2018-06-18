@@ -17,12 +17,7 @@ namespace identity_provider
 		{
 			const string connectionString = @"Server=localhost;Database=identity;Data Source=.;Initial Catalog=identity;Integrated Security=True";
 		    services.AddTransient(provider => new UserRepository(connectionString, conn => new UnitOfWork(conn)));
-			services.AddTransient(provider => new TenantRepository(() =>
-			{
-				var sqlConnection = new SqlConnection(connectionString);
-				sqlConnection.Open();
-				return sqlConnection;
-			}));
+			services.AddTransient(provider => new TenantRepository(() => GetConnection(connectionString)));
 
 			services.AddMvc();
 			
@@ -32,6 +27,13 @@ namespace identity_provider
 				.AddInMemoryClients(SeedData.GetClients())
 				.AddInMemoryIdentityResources(SeedData.GetIdentityResources())
 				.AddInMemoryApiResources(SeedData.GetApiResources());
+		}
+
+		private static SqlConnection GetConnection(string connectionString)
+		{
+			var sqlConnection = new SqlConnection(connectionString);
+			sqlConnection.Open();
+			return sqlConnection;
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -25,6 +25,11 @@ namespace identity
 		private readonly string _connectionString;
 		private readonly Func<SqlConnection, IUnitOfWork> _createUnitOfWork;
 
+		/// <summary>
+		/// TODO: Remove connection string, & use connection factory
+		/// </summary>
+		/// <param name="connectionString"></param>
+		/// <param name="createUnitOfWork"></param>
 		public UserRepository(string connectionString, Func<SqlConnection, IUnitOfWork> createUnitOfWork)
 		{
 			_connectionString = connectionString;
