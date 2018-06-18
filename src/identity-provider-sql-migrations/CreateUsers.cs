@@ -1,9 +1,8 @@
-﻿using System;
-using FluentMigrator;
+﻿using FluentMigrator;
 
 namespace identity_provider_sql_migrations
 {
-	[Migration(1)]
+	[Migration(20180123201614)]
 	public class CreateUsers : Migration
     {
 	    public override void Up()
@@ -26,11 +25,11 @@ namespace identity_provider_sql_migrations
 			    .WithColumn("Name").AsString(250).NotNullable()
 			    .WithColumn("ProviderSubjectId").AsString(64).NotNullable();
 
-			Create.ForeignKey("fk_Users_UserClaims_SubjectId")
-			    .FromTable("UserCLaims").ForeignColumn("SubjectId")
+			Create.ForeignKey("FK_UserClaims_Users_SubjectId")
+			    .FromTable("UserClaims").ForeignColumn("SubjectId")
 			    .ToTable("Users").PrimaryColumn("SubjectId");
 
-		    Create.ForeignKey("fk_Users_IdentityProviders_SubjectId")
+		    Create.ForeignKey("FK_IdentityProviders_Users_SubjectId")
 			    .FromTable("IdentityProviders").ForeignColumn("SubjectId")
 			    .ToTable("Users").PrimaryColumn("SubjectId");
 
