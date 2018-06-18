@@ -1,5 +1,4 @@
-﻿using identity_provider.Quickstart;
-using identity_provider.Quickstart.Users;
+﻿using identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
