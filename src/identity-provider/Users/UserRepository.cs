@@ -64,14 +64,14 @@ namespace identity
 		{
 			var queryParam = new {username};
 			var queryFilter = new QueryFilter(queryParam, "WHERE Users.Username = @Username");
-			return Enumerable.FirstOrDefault(GetUsers(queryFilter));
+			return GetUsers(queryFilter).FirstOrDefault();
 		}
 
 		public User GetBySubjectId(string subjectId)
 		{
 			var queryParam = new {subjectId};
 			var queryFilter = new QueryFilter(queryParam, "WHERE Users.SubjectId = @SubjectId");
-			return Enumerable.FirstOrDefault(GetUsers(queryFilter));
+			return GetUsers(queryFilter).FirstOrDefault();
 		}
 
 		private IEnumerable<User> GetUsers(QueryFilter queryFilter = null)
@@ -83,7 +83,7 @@ namespace identity
 				                   "LEFT JOIN UserClaims ON Users.SubjectId = UserClaims.SubjectId " +
 				                   "LEFT JOIN IdentityProviders ON Users.SubjectId = IdentityProviders.SubjectId";
 
-				SqlMapper.Query<User, UserClaim, IdentityProvider, User>(connection, queryFilter != null ? $"{sql}  {queryFilter.Clause}" : sql,
+				connection.Query<User, UserClaim, IdentityProvider, User>(queryFilter != null ? $"{sql}  {queryFilter.Clause}" : sql,
 					(user, claim, provider) =>
 					{
 						if (!usersByUsername.TryGetValue(user.Username, out var u))
@@ -103,7 +103,7 @@ namespace identity
 		{
 			using (var connection = GetConnection())
 			{
-				return SqlMapper.Query<UserClaim>(connection, "SELECT * FROM UserClaims WHERE SubjectId = @SubjectId",
+				return connection.Query<UserClaim>("SELECT * FROM UserClaims WHERE SubjectId = @SubjectId",
 						new {subjectId})
 					.Select(userClaim => new Claim(userClaim.Type, userClaim.Value));
 			}
@@ -168,7 +168,7 @@ namespace identity
 
 		public void AddInitialUsers(IEnumerable<TestUser> testUsers, Tenant tenant)
 		{
-			if (Enumerable.Any(GetAllUsers())) return;
+			if (GetAllUsers().Any()) return;
 			foreach (var testUser in testUsers)
 			{
 				AddUser(new User
@@ -188,7 +188,7 @@ namespace identity
 			var queryParam = new { ProviderSubjectId = userId, Name = providerName };
 			var queryFilter = new QueryFilter(queryParam,
 				"WHERE IdentityProviders.ProviderSubjectId = @ProviderSubjectId AND IdentityProviders.Name = @Name");
-			return Enumerable.FirstOrDefault(GetUsers(queryFilter));
+			return GetUsers(queryFilter).FirstOrDefault();
 		}
 	}
 }
