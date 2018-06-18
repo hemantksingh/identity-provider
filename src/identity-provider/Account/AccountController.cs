@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using identity_provider.Tenants;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Events;
@@ -32,6 +33,7 @@ namespace identity
 		private readonly IIdentityServerInteractionService _interaction;
 		private readonly IEventService _events;
 		private readonly UserRepository _userRepository;
+		private readonly TenantRepository _tenantRepository;
 		private readonly AccountService _account;
 
 		public AccountController(
@@ -40,11 +42,13 @@ namespace identity
 			IHttpContextAccessor httpContextAccessor,
 			IAuthenticationSchemeProvider schemeProvider,
 			IEventService events,
-			UserRepository userRepository)
+			UserRepository userRepository,
+			TenantRepository tenantRepository)
 		{
 			_interaction = interaction;
 			_events = events;
 			_userRepository = userRepository;
+			_tenantRepository = tenantRepository;
 			_account = new AccountService(interaction, httpContextAccessor, schemeProvider, clientStore);
 		}
 
@@ -307,9 +311,12 @@ namespace identity
 		{
 			if (!ModelState.IsValid)
 				return View(model);
+			Task<AuthorizationRequest> context = _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
+			Tenant tenant = _tenantRepository.GetTenantByName(context.Result.Tenant);
 			var user = new User
 			{
 				SubjectId = Guid.NewGuid().ToString(),
+				TenantId = tenant.Id.ToString(),
 				Username = model.Username,
 				Password = model.Password,
 				IsActive = true,
@@ -320,12 +327,13 @@ namespace identity
 					new Claim(JwtClaimTypes.FamilyName, model.Lastname),
 					new Claim(JwtClaimTypes.Address, $"{{ 'street_address': '{model.Address}', 'locality': 'Default', 'postal_code': 000000, 'country': '{model.Country}' }}", IdentityServerConstants.ClaimValueTypes.Json),
 					new Claim(JwtClaimTypes.Email, model.Email),
-					new Claim(JwtClaimTypes.Role, "FreeUser")
+					new Claim(JwtClaimTypes.Role, "FreeUser"),
+					new Claim("tid", tenant.Id.ToString())
 				}
 			};
 			_userRepository.AddUser(user);
 
-			await HttpContext.SignInAsync(user.SubjectId, user.Username);
+			await HttpContext.SignInAsync(user.SubjectId, user.Username, user.TenantId);
 
 			if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl))
 				return Redirect(model.ReturnUrl);

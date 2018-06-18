@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 
 namespace client_webapp
@@ -49,6 +51,14 @@ namespace client_webapp
 					options.TokenValidationParameters = new TokenValidationParameters
 					{
 						NameClaimType = "name"
+					};
+					options.Events.OnRedirectToIdentityProvider = context =>
+					{
+						if (context.ProtocolMessage.RequestType == OpenIdConnectRequestType.Authentication)
+						{
+							context.ProtocolMessage.AcrValues = "tenant:default";
+						}
+						return Task.FromResult(0);
 					};
 				});
 
