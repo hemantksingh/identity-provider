@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
+using identity;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
@@ -9,6 +11,21 @@ namespace identity_provider
 {
     public static class SeedData
     {
+	    public static IEnumerable<Tenant> GetTenants()
+	    {
+		    return new List<Tenant>
+		    {
+			    new Tenant
+			    {
+					Id = Guid.NewGuid(),
+				    Name = "default",
+					OrganizationName = "Brahamputra Works",
+					License = "Standard",
+					IsActive = true
+			    }
+		    };
+	    }
+
 	    public static List<TestUser> GetUsers()
 	    {
 		    return new List<TestUser>

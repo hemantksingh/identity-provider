@@ -7,6 +7,7 @@ namespace identity
 	public class User
 	{
 		public string SubjectId;
+		public string TenantId;
 		public string Username;
 		public string Password;
 		public bool IsActive;
