@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using Dapper;
 using identity;
 
@@ -12,6 +14,14 @@ namespace identity_provider.Tenants
 	    public TenantRepository(Func<SqlConnection> createConnection)
 	    {
 		    _createConnection = createConnection;
+	    }
+
+	    public IEnumerable<Tenant> GetAllTenants()
+	    {
+		    using (var connection = _createConnection())
+		    {
+			   return connection.Query<Tenant>("SELECT * FROM Tenants");
+		    }
 	    }
 
 	    public Tenant AddTenant(Tenant tenant)
@@ -39,6 +49,11 @@ namespace identity_provider.Tenants
 			    License = tenant.License,
 			    IsActive = tenant.IsActive
 		    };
+	    }
+
+	    public Tenant AddInitialTenant(Tenant tenant)
+	    {
+		    return GetAllTenants().Any() ? tenant : AddTenant(tenant);
 	    }
     }
 }
