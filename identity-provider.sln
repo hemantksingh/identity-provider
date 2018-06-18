@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "identity-provider", "src\identity-provider\identity-provider.csproj", "{E1CE250E-8BB1-4505-BB35-CE2EB0792C13}"
 EndProject
@@ -13,16 +13,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "identity-provider-sql-migra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{862B5D3A-6767-4EF5-8006-7A8488774EF1}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
 		Makefile = Makefile
 		README.md = README.md
-		.gitignore = .gitignore
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-javascript", "src\client-javascript\client-javascript.csproj", "{745EF6B3-4833-4AAE-A3C9-08E916D781B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-console", "src\client-console\client-console.csproj", "{8ECAC2F7-BBFC-4415-9554-D9B430DC1C5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api-gateway", "src\api-gateway\api-gateway.csproj", "{DE4C121C-35D2-48C0-9569-769B8E1D595F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "api-gateway", "src\api-gateway\api-gateway.csproj", "{DE4C121C-35D2-48C0-9569-769B8E1D595F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
