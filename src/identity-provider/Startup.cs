@@ -53,7 +53,7 @@ namespace identity_provider
 				app.UseDeveloperExceptionPage();
 			}
 
-			var tenant = tenantRepository.AddTenant(SeedData.GetTenants().First());
+			var tenant = tenantRepository.AddInitialTenant(SeedData.GetTenants().First());
 			userRepository.AddInitialUsers(SeedData.GetUsers(), tenant);
 
 			app.UseIdentityServer();
