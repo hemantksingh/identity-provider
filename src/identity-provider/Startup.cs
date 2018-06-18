@@ -16,8 +16,8 @@ namespace identity_provider
 		public void ConfigureServices(IServiceCollection services)
 		{
 			const string connectionString = @"Server=localhost;Database=identity;Data Source=.;Initial Catalog=identity;Integrated Security=True";
-		    services.AddTransient(provider => new UserRepository(connectionString, conn => new UnitOfWork(conn)));
-			services.AddTransient(provider => new TenantRepository(() => GetConnection(connectionString)));
+		    services.AddSingleton(provider => new UserRepository(() => GetConnection(connectionString), () => new UnitOfWork(GetConnection(connectionString))));
+			services.AddSingleton(provider => new TenantRepository(() => GetConnection(connectionString)));
 
 			services.AddMvc();
 			
@@ -29,6 +29,13 @@ namespace identity_provider
 				.AddInMemoryApiResources(SeedData.GetApiResources());
 		}
 
+		/// <summary>
+		/// Creates a new sql connection per query. Closing the connection after finishing processing the query
+		/// does not actually close the physical connection but just returns it to the connection pool, managed
+		/// by dotnet. Let dotnet handle connection pooling:
+		/// https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-connection-pooling
+		/// </summary>
+		/// <returns>SqlConnection</returns>
 		private static SqlConnection GetConnection(string connectionString)
 		{
 			var sqlConnection = new SqlConnection(connectionString);

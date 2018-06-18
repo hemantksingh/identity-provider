@@ -22,31 +22,13 @@ namespace identity
 
 	public class UserRepository
 	{
-		private readonly string _connectionString;
-		private readonly Func<SqlConnection, IUnitOfWork> _createUnitOfWork;
+		private readonly Func<SqlConnection> _createConnection;
+		private readonly Func<IUnitOfWork> _createUnitOfWork;
 
-		/// <summary>
-		/// TODO: Remove connection string, & use connection factory
-		/// </summary>
-		/// <param name="connectionString"></param>
-		/// <param name="createUnitOfWork"></param>
-		public UserRepository(string connectionString, Func<SqlConnection, IUnitOfWork> createUnitOfWork)
+		public UserRepository(Func<SqlConnection> createConnection, Func<IUnitOfWork> createUnitOfWork)
 		{
-			_connectionString = connectionString;
+			_createConnection = createConnection;
 			_createUnitOfWork = createUnitOfWork;
-		}
-		/// <summary>
-		/// Creates a new sql connection per query. Closing the connection after finishing processing the query
-		/// does not actually close the physical connection but just returns it to the connection pool, managed
-		/// by dotnet. Let dotnet handle connection pooling:
-		/// https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-connection-pooling
-		/// </summary>
-		/// <returns></returns>
-		private SqlConnection GetConnection()
-		{
-			var connection = new SqlConnection(_connectionString);
-			connection.Open();
-			return connection;
 		}
 
 		public IEnumerable<User> GetAllUsers()
@@ -77,7 +59,7 @@ namespace identity
 		private IEnumerable<User> GetUsers(QueryFilter queryFilter = null)
 		{
 			var usersByUsername = new Dictionary<string, User>();
-			using (var connection = GetConnection())
+			using (var connection = _createConnection())
 			{
 				const string sql = "SELECT * FROM Users " +
 				                   "LEFT JOIN UserClaims ON Users.SubjectId = UserClaims.SubjectId " +
@@ -101,7 +83,7 @@ namespace identity
 
 		public IEnumerable<Claim> GetClaims(string subjectId)
 		{
-			using (var connection = GetConnection())
+			using (var connection = _createConnection())
 			{
 				return connection.Query<UserClaim>("SELECT * FROM UserClaims WHERE SubjectId = @SubjectId",
 						new {subjectId})
@@ -111,7 +93,7 @@ namespace identity
 
 		public void AddUser(User user)
 		{
-			using (IUnitOfWork unitOfWork = _createUnitOfWork(GetConnection()).Begin())
+			using (IUnitOfWork unitOfWork = _createUnitOfWork().Begin())
 			{
 				unitOfWork.Commit((connection, transaction) =>
 				{
