@@ -5,6 +5,11 @@ using IdentityServer4.Services;
 
 namespace identity
 {
+	/// <summary>
+	/// Gets identity information about users when creating tokens or when handling requests to the userinfo
+	/// or introspection endpoints. It is impractical to put all of the possible claims needed for users into the cookie, 
+	/// so IdentityServer defines an extensibility point for allowing claims to be dynamically loaded as needed for a user.
+	/// </summary>
 	public class UserProfileService : IProfileService
 	{
 		private readonly UserRepository _userRepository;
@@ -21,6 +26,11 @@ namespace identity
 			return Task.FromResult(0);
 		}
 
+		/// <summary>
+		/// Determines if the user is currently allowed to obtain tokens.
+		/// </summary>
+		/// <param name="context"></param>
+		/// <returns></returns>
 		public Task IsActiveAsync(IsActiveContext context)
 		{
 			var subjectId = context.Subject.GetSubjectId();
