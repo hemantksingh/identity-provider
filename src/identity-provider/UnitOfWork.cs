@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -7,7 +8,8 @@ namespace identity
 	public interface IUnitOfWork : IDisposable
 	{
 		IUnitOfWork Begin();
-		void Commit(Action<SqlConnection, SqlTransaction> doWork);
+		void Commit(Action<SqlConnection, SqlTransaction> action);
+		void Commit(IList<Action<SqlConnection, SqlTransaction>> actions);
 		void Rollback();
 	}
 
@@ -18,7 +20,7 @@ namespace identity
 
 		public UnitOfWork(SqlConnection connection)
 		{
-			_connection = connection ?? throw new ArgumentNullException(nameof(connection), "cannot be null");
+			_connection = connection ?? throw new ArgumentNullException(nameof(connection));
 			if (_connection.State != ConnectionState.Open)
 				_connection.Open();
 		}
@@ -29,15 +31,32 @@ namespace identity
 			return this;
 		}
 
-		public void Commit(Action<SqlConnection, SqlTransaction> doWork)
+		public void Commit(Action<SqlConnection, SqlTransaction> action)
 		{
 			if (_transaction == null)
 				throw new InvalidOperationException(
 					$"{nameof(UnitOfWork)} needs to {nameof(Begin).ToLower()} before {nameof(Commit).ToLower()}");
+
+			action(_connection, _transaction);
+			Commit(_transaction);
+		}
+
+		public void Commit(IList<Action<SqlConnection, SqlTransaction>> actions)
+		{
+			if (_transaction == null)
+				throw new InvalidOperationException(
+					$"{nameof(UnitOfWork)} needs to {nameof(Begin).ToLower()} before {nameof(Commit).ToLower()}");
+
+			foreach (var action in actions)
+				action(_connection, _transaction);
+			Commit(_transaction);
+		}
+
+		private void Commit(SqlTransaction transaction)
+		{
 			try
 			{
-				doWork(_connection, _transaction);
-				_transaction.Commit();
+				transaction.Commit();
 			}
 			catch (Exception exception)
 			{
