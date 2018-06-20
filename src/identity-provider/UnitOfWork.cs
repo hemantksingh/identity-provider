@@ -8,7 +8,7 @@ namespace identity
 	public interface IUnitOfWork : IDisposable
 	{
 		IUnitOfWork Begin();
-		void Commit(Action<SqlConnection, SqlTransaction> doWork);
+		void Commit(Action<SqlConnection, SqlTransaction> action);
 		void Commit(IList<Action<SqlConnection, SqlTransaction>> actions);
 		void Rollback();
 	}
@@ -31,15 +31,32 @@ namespace identity
 			return this;
 		}
 
-		public void Commit(Action<SqlConnection, SqlTransaction> doWork)
+		public void Commit(Action<SqlConnection, SqlTransaction> action)
 		{
 			if (_transaction == null)
 				throw new InvalidOperationException(
 					$"{nameof(UnitOfWork)} needs to {nameof(Begin).ToLower()} before {nameof(Commit).ToLower()}");
+
+			action(_connection, _transaction);
+			Commit(_transaction);
+		}
+
+		public void Commit(IList<Action<SqlConnection, SqlTransaction>> actions)
+		{
+			if (_transaction == null)
+				throw new InvalidOperationException(
+					$"{nameof(UnitOfWork)} needs to {nameof(Begin).ToLower()} before {nameof(Commit).ToLower()}");
+
+			foreach (var action in actions)
+				action(_connection, _transaction);
+			Commit(_transaction);
+		}
+
+		private void Commit(SqlTransaction transaction)
+		{
 			try
 			{
-				doWork(_connection, _transaction);
-				_transaction.Commit();
+				transaction.Commit();
 			}
 			catch (Exception exception)
 			{
@@ -53,16 +70,6 @@ namespace identity
 				}
 				throw new Exception($"Failed to {nameof(Commit).ToLower()} transaction", exception);
 			}
-		}
-
-		public void Commit(IList<Action<SqlConnection, SqlTransaction>> actions)
-		{
-			foreach (var action in actions)
-			{
-				action(_connection, _transaction);
-			}
-
-			_transaction.Commit();
 		}
 
 		public void Rollback()
