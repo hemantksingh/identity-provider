@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -8,6 +9,7 @@ namespace identity
 	{
 		IUnitOfWork Begin();
 		void Commit(Action<SqlConnection, SqlTransaction> doWork);
+		void Commit(IList<Action<SqlConnection, SqlTransaction>> actions);
 		void Rollback();
 	}
 
@@ -18,7 +20,7 @@ namespace identity
 
 		public UnitOfWork(SqlConnection connection)
 		{
-			_connection = connection ?? throw new ArgumentNullException(nameof(connection), "cannot be null");
+			_connection = connection ?? throw new ArgumentNullException(nameof(connection));
 			if (_connection.State != ConnectionState.Open)
 				_connection.Open();
 		}
@@ -51,6 +53,16 @@ namespace identity
 				}
 				throw new Exception($"Failed to {nameof(Commit).ToLower()} transaction", exception);
 			}
+		}
+
+		public void Commit(IList<Action<SqlConnection, SqlTransaction>> actions)
+		{
+			foreach (var action in actions)
+			{
+				action(_connection, _transaction);
+			}
+
+			_transaction.Commit();
 		}
 
 		public void Rollback()

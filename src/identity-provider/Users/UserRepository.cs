@@ -93,51 +93,53 @@ namespace identity
 
 		public void AddUser(User user)
 		{
+			var actions = new List<Action<SqlConnection, SqlTransaction>>
+			{
+				(connection, transaction) => connection.Execute(
+					"INSERT INTO Users (SubjectId, TenantId, Username, Password, IsActive)"
+					+ " VALUES(@SubjectId, @TenantId, @Username, @Password, @IsActive)",
+					new
+					{
+						user.SubjectId,
+						user.TenantId,
+						user.Username,
+						user.Password,
+						user.IsActive
+					},
+					transaction)
+			};
+
+			foreach (var claim in user.Claims)
+			{
+				actions.Add((connection, transaction) => connection.Execute(
+					"INSERT INTO UserClaims VALUES(@Id, @SubjectId, @Type, @Value)",
+					new
+					{
+						Id = Guid.NewGuid().ToString(),
+						user.SubjectId,
+						claim.Type,
+						claim.Value
+					},
+					transaction));
+			}
+
+			foreach (var provider in user.IdentityProviders)
+			{
+				actions.Add((connection, transaction) => connection.Execute(
+					"INSERT INTO IdentityProviders VALUES(@Id, @SubjectId, @Name, @ProviderSubjectId)",
+					new
+					{
+						Id = Guid.NewGuid().ToString(),
+						user.SubjectId,
+						provider.Name,
+						provider.ProviderSubjectId
+					},
+					transaction));
+			}
+
 			using (IUnitOfWork unitOfWork = _createUnitOfWork().Begin())
 			{
-				unitOfWork.Commit((connection, transaction) =>
-				{
-					connection.Execute(
-						"INSERT INTO Users (SubjectId, TenantId, Username, Password, IsActive)"
-						+ " VALUES(@SubjectId, @TenantId, @Username, @Password, @IsActive)",
-						new
-						{
-							user.SubjectId,
-							user.TenantId,
-							user.Username,
-							user.Password,
-							user.IsActive
-						},
-						transaction);
-
-					foreach (var claim in user.Claims)
-					{
-						connection.Execute(
-							"INSERT INTO UserClaims VALUES(@Id, @SubjectId, @Type, @Value)",
-							new
-							{
-								Id = Guid.NewGuid().ToString(),
-								user.SubjectId,
-								claim.Type,
-								claim.Value
-							},
-							transaction);
-					}
-
-					foreach (var provider in user.IdentityProviders)
-					{
-						connection.Execute(
-							"INSERT INTO IdentityProviders VALUES(@Id, @SubjectId, @Name, @ProviderSubjectId)",
-							new
-							{
-								Id = Guid.NewGuid().ToString(),
-								user.SubjectId,
-								provider.Name,
-								provider.ProviderSubjectId
-							},
-							transaction);
-					}
-				});
+				unitOfWork.Commit(actions);
 			}
 		}
 
