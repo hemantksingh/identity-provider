@@ -1,3 +1,4 @@
+out
 obj
 .vs
 .vscode
@@ -7,4 +8,6 @@ obj
 **/*/.vs
 **/*/*.csproj.user
 **/*/*.rsa
+**/*/*.zip
+*.nupkg
 

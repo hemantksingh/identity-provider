@@ -35,3 +35,4 @@ build_script:
 
 after_build:
   - cmd: make database USERID=sa DBSERVER="(local)\SQL2017" DBNAME=master
+  - cmd: make package CONFIGURATION=Release BUILD_NUMBER=0

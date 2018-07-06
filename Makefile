@@ -1,4 +1,10 @@
-.PHONY: build test run database
+.PHONY: build test package run database
+
+APPLICATION=identity-provider
+BUILD_NUMBER?=0
+APP_VERSION=1.0.0.$(BUILD_NUMBER)
+CONFIGURATION?=Debug
+PUBLISH_DIR=${CURDIR}/out
 
 build:
 	cd src/identity-provider && dotnet build
@@ -6,6 +12,11 @@ build:
 test:
 	cd test/identity-provider-test && \
 	dotnet test
+
+package:
+	dotnet publish -o $(PUBLISH_DIR) -c $(CONFIGURATION) src/$(APPLICATION)
+	powershell "'$(APP_VERSION)' | out-file '$(PUBLISH_DIR)\version.txt'"
+	powershell ./choco/chocopack.ps1 -application $(APPLICATION) -version $(APP_VERSION) -publishDir $(PUBLISH_DIR)
 
 run:
 	cd src/identity-provider && \
