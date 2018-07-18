@@ -1,7 +1,11 @@
-function CreateDb($server, $name) {
-  if ($server.Databases.Contains($name)) {
-    Write-Host "Db '$name' already exists."
-    return
+function Create-Db(
+  [Parameter(mandatory=$true)]
+  [Microsoft.SqlServer.Management.Smo.Server] $server,
+  [Parameter(mandatory=$true)]
+  [string] $name) {
+  $db = Get-Db $server $name
+  if ($db) {
+    return $db
   }
   Write-Host "Creating db '$name'"
   $db = New-Object `
@@ -21,13 +25,14 @@ function Get-Db(
     return $server.Databases.Item($name)
   } else {
     Write-Host "No database '$name' found on server '$server'"
+    return
   }
 }
 
 function CreateLogin($server, $loginName, $password) {
   if ($server.Logins.Contains($loginName)) {
     Write-Host "Login '$loginName' already exists."
-    return
+    return $server.Logins[$loginName]
   }
 
   $login = New-Object `
@@ -62,14 +67,14 @@ function AddUserToDb($db, $username) {
 }
 
 function AddLoginToServerRole($server, $loginName, $roleName) {
-  Write-Host "Adding login '$loginName' to role '$roleName'"
+  Write-Host "Adding login '$loginName' to server role '$roleName'"
   $role = $server.Roles[$roleName]
   $role.AddMember($loginName)
   $role.Alter
 }
 
-function AddUserToRole($db, $user, $roleName) {
-  Write-Host "Adding user '$user' to role '$roleName'"
+function AddUserToDbRole($db, $user, $roleName) {
+  Write-Host "Adding user '$user' to db role '$roleName'"
   $role = $db.Roles[$roleName]
   $role.AddMember($user)
   $role.Alter

@@ -34,5 +34,5 @@ build_script:
   - cmd: make build
 
 after_build:
-  - cmd: make database USERID=sa DBSERVER="(local)\SQL2017" DBNAME=master
+  - cmd: make database DBSERVER="(local)\SQL2017" DBUSER=migration-runner DBPASSWORD="Passw0rd12!"
   - cmd: make package CONFIGURATION=Release BUILD_NUMBER=0

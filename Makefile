@@ -26,14 +26,20 @@ DBSERVER ?= localhost
 DBNAME ?= identity
 CONNECTION := "Server=$(DBSERVER);Database=$(DBNAME);"
 
-ifdef USERID
-	CONNECTION_STRING = $(CONNECTION)"User ID=$(USERID);Password=Password12!"
+ifdef DBUSER
+	CONNECTION_STRING = $(CONNECTION)"User ID=$(DBUSER);Password=$(DBPASSWORD)"
 else
 	CONNECTION_STRING = $(CONNECTION)"Trusted_Connection=True;"
 endif
 
-database:
-	powershell "./db/configure.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser migration-runner -dbPassword Passw0rd123"
+configure-db:
+ifdef DBUSER
+	powershell "./db/configure.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser $(DBUSER) -dbPassword \"$(DBPASSWORD)\""
+else
+	@echo "Using trusted connection"
+endif
+
+database: configure-db
 	cd src/identity-provider-sql-migrations && dotnet build
 	~/.nuget/packages/fluentmigrator.console/3.0.0/net461/any/Migrate.exe \
 	--target="src\identity-provider-sql-migrations\bin\Debug\netcoreapp2.0\identity-provider-sql-migrations.dll" \
