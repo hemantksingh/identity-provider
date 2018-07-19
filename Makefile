@@ -34,7 +34,7 @@ endif
 
 configure-db:
 ifdef DBUSER
-	powershell "./db/configure.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser $(DBUSER) -dbPassword \"$(DBPASSWORD)\""
+	powershell "./db/configure.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser \"$(DBUSER)\" -dbPassword \"$(DBPASSWORD)\""
 else
 	@echo "Using trusted connection"
 endif
@@ -45,3 +45,6 @@ database: configure-db
 	--target="src\identity-provider-sql-migrations\bin\Debug\netcoreapp2.0\identity-provider-sql-migrations.dll" \
 	--db=SqlServer \
 	-c=$(CONNECTION_STRING)
+
+cleanup-db:
+	powershell "./db/cleanup.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser \"$(DBUSER)\""

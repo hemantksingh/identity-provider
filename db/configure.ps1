@@ -12,13 +12,13 @@ $currentDir = Split-Path $script:MyInvocation.MyCommand.Path
 [reflection.assembly]::LoadWithPartialName("Microsoft.SqlServer.Smo")
 $server = new-object Microsoft.SqlServer.Management.Smo.Server($dbServer)
 
-$userLogin = CreateLogin $server $dbUser $dbPassword
+$userLogin = Create-Login $server $dbUser $dbPassword
 
-AddLoginToServerRole $server $userLogin.Name "dbcreator"
+Add-LoginToServerRole $server $userLogin.Name "dbcreator"
 
 $db = Create-Db $server $dbName
 
-AddUserToDb $db $dbUser
-AddUserToDbRole $db $dbUser "db_datareader"
-AddUserToDbRole $db $dbUser "db_datawriter"
-AddUserToDbRole $db $dbUser "db_ddladmin"
+Add-UserToDb $db $dbUser
+Add-UserToDbRole $db $dbUser "db_datareader"
+Add-UserToDbRole $db $dbUser "db_datawriter"
+Add-UserToDbRole $db $dbUser "db_ddladmin"
