@@ -9,22 +9,14 @@ $ErrorActionPreference = "Stop"
 $currentDir = Split-Path $script:MyInvocation.MyCommand.Path
 . $currentDir\sqlserver.ps1
 
-function Configure-DbMigrationUser(
+# Db migration user does not necessarily need a 'db_owner' role
+# It is safe to add this role assigned for now, coz the user gets 
+# cleaned up post migration. This also ensures a single user configuration
+function Configure-User(
     [Parameter(mandatory = $true)][Microsoft.SqlServer.Management.Smo.Database]$database,
     [Parameter(mandatory = $true)][string] $dbUser) {
+    
     Add-UserToDb $database $dbUser
-    Add-UserToDbRole $database $dbUser "db_datareader"
-    Add-UserToDbRole $database $dbUser "db_datawriter"
-    Add-UserToDbRole $database $dbUser "db_ddladmin"
-}
-
-function Configure-TestUser(
-    [Parameter(mandatory = $true)][Microsoft.SqlServer.Management.Smo.Database]$database,
-    [Parameter(mandatory = $true)][string] $dbUser) {
-    Add-UserToDb $database $dbUser 
-
-    $roles = @('db_datareader','db_datawriter','db_ddladmin','db_ownner')
-
     Add-UserToDbRole $database $dbUser "db_datareader"
     Add-UserToDbRole $database $dbUser "db_datawriter"
     Add-UserToDbRole $database $dbUser "db_ddladmin"
@@ -38,4 +30,4 @@ $userLogin = Create-Login $server $dbUser $dbPassword
 Add-LoginToServerRole $server $userLogin.Name "dbcreator"
 
 $db = Create-Db $server $dbName
-Configure-TestUser $db $dbUser
+Configure-User $db $dbUser
