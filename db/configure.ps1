@@ -10,7 +10,7 @@ $currentDir = Split-Path $script:MyInvocation.MyCommand.Path
 . $currentDir\sqlserver.ps1
 
 # Db migration user does not necessarily need a 'db_owner' role
-# It is safe to add this role assigned for now, coz the user gets 
+# It is safe to add this role for now, coz the user gets 
 # cleaned up post migration. This also ensures a single user configuration
 function Configure-User(
     [Parameter(mandatory = $true)][Microsoft.SqlServer.Management.Smo.Database]$database,
