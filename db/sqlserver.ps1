@@ -1,11 +1,13 @@
 # Fails with "FailedOperationException" if the password does not meet
-# the complexisty requirements
+# the complexity requirements
 function Create-Login(
     [Parameter(mandatory = $true)][Microsoft.SqlServer.Management.Smo.Server] $server,
     [Parameter(mandatory = $true)][string] $loginName,
     [Parameter(mandatory = $true)][string] $password) {
+    
+    Write-Host "Creating login '$loginName' on server '$server'"
     if ($server.Logins.Contains($loginName)) {
-        Write-Host "Login '$loginName' already exists."
+        Write-Host "Login '$loginName' already exists, nothing created"
         return $server.Logins[$loginName]
     }
 
@@ -14,13 +16,13 @@ function Create-Login(
         -ArgumentList $server, $loginName
 
     if ($password) {
-        Write-Host "Creating SqlLogin '$loginName' on '$server'"
+        Write-Host "Creating SqlLogin '$loginName' on server '$server'"
         $login.LoginType = [Microsoft.SqlServer.Management.Smo.LoginType]::SqlLogin
         $login.PasswordExpirationEnabled = $false
         $login.Create($password)
     }
     else {
-        Write-Host "Creating WindowsUser '$loginName' on '$server'"
+        Write-Host "Creating WindowsUser '$loginName' on server '$server'"
         $login.LoginType = [Microsoft.SqlServer.Management.Smo.LoginType]::WindowsUser
         $login.Create()
     }
@@ -79,12 +81,13 @@ function Get-Db(
 function Add-UserToDb(
     [Parameter(mandatory = $true)][Microsoft.SqlServer.Management.Smo.Database]$database,
     [Parameter(mandatory = $true)][string] $user) {
+    
+    Write-Host "Adding user '$user' to database '$database'"
     if ($database.Users.Contains($user)) {
-        Write-Host "'$user' already exists."
+        Write-Host "User '$user' already exists, nothing added"
         return
     }
-
-    Write-Host "Adding user '$user' to database '$database'"
+    
     $usr = New-Object `
         -TypeName Microsoft.SqlServer.Management.Smo.User `
         -argumentlist $database, $user
@@ -96,7 +99,7 @@ function Add-UserToDbRole(
     [Parameter(mandatory = $true)][Microsoft.SqlServer.Management.Smo.Database]$database,
     [Parameter(mandatory = $true)][string] $user,
     [Parameter(mandatory = $true)][string] $roleName) {
-    Write-Host "Adding user '$user' to database role '$roleName'"
+    Write-Host "Adding user '$user' to role '$roleName' on database '$database'"
     $role = $database.Roles[$roleName]
     $role.AddMember($user)
     $role.Alter()
