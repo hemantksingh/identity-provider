@@ -36,5 +36,5 @@ build_script:
   - cmd: make build
   - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
 
-after_build:
-  - cmd: echo Run tests here ...
+artifacts:
+  - path: '**\*.nupkg' # push all *.nupkg files in build directory recursively
