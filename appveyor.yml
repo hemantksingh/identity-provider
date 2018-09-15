@@ -36,4 +36,4 @@ build_script:
 after_build:
   - cmd: make database DBSERVER="(local)\SQL2017" DBUSER=migration-runner DBPASSWORD="Passw0rd12!"
   - cmd: make cleanup-db DBSERVER="(local)\SQL2017" DBUSER=migration-runner
-  - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_VERSION%
+  - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
