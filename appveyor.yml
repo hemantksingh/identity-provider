@@ -42,7 +42,8 @@ before_test:
   - ps: RefreshEnv
 
 test:
-  - cmd: make test
+  assemblies:
+    - tests-identity-provider.dll
 
 after_test:
   - cmd: make cleanup-db DBSERVER="(local)\SQL2017" DBUSER=migration-runner
