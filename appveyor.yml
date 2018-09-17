@@ -30,11 +30,9 @@ install:
 before_build:
   - cmd: make --version
   - cmd: make database DBSERVER="(local)\SQL2017" DBUSER=migration-runner DBPASSWORD="Passw0rd12!"
-  
 
 build_script:
   - cmd: make build
-  - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
 
 before_test:
   - ps: | 
@@ -47,6 +45,7 @@ test:
 
 after_test:
   - cmd: make cleanup-db DBSERVER="(local)\SQL2017" DBUSER=migration-runner
+  - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
 
 artifacts:
   - path: '**\*.nupkg' # push all *.nupkg files in build directory recursively
