@@ -37,7 +37,8 @@ build_script:
   - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
 
 before_test:
-  - ps: [Environment]::SetEnvironmentVariable("identityConnection", "Server=(local)\SQL2017;Database=identity;User ID=migration-runner;Password=Passw0rd12!", "Machine")
+  - ps: | 
+        [Environment]::SetEnvironmentVariable("identityConnection", "Server=(local)\SQL2017;Database=identity;User ID=migration-runner;Password=Passw0rd12!", "Machine")
   - ps: RefreshEnv
 
 test:
