@@ -6,11 +6,21 @@ APP_VERSION=1.0.$(BUILD_NUMBER)
 CONFIGURATION?=Debug
 PUBLISH_DIR=${CURDIR}/out
 
+DBSERVER ?= localhost
+DBNAME ?= identity
+CONNECTION := "Server=$(DBSERVER);Database=$(DBNAME);"
+
+ifdef DBUSER
+	CONNECTION_STRING = $(CONNECTION)"User ID=$(DBUSER);Password=$(DBPASSWORD)"
+else
+	CONNECTION_STRING = $(CONNECTION)"Trusted_Connection=True;"
+endif
+
 build:
 	cd src/identity-provider && dotnet build
 
 test:
-	cd test/identity-provider-test && \
+	cd test/tests-identity-provider && \
 	dotnet test
 
 package:
@@ -21,16 +31,6 @@ package:
 run:
 	cd src/identity-provider && \
 	dotnet run
-
-DBSERVER ?= localhost
-DBNAME ?= identity
-CONNECTION := "Server=$(DBSERVER);Database=$(DBNAME);"
-
-ifdef DBUSER
-	CONNECTION_STRING = $(CONNECTION)"User ID=$(DBUSER);Password=$(DBPASSWORD)"
-else
-	CONNECTION_STRING = $(CONNECTION)"Trusted_Connection=True;"
-endif
 
 configure-db:
 ifdef DBUSER

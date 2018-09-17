@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client-console", "src\clien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "api-gateway", "src\api-gateway\api-gateway.csproj", "{DE4C121C-35D2-48C0-9569-769B8E1D595F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests-identity-provider", "test\tests-identity-provider\tests-identity-provider.csproj", "{788E072E-FFF4-4304-B895-0FD94E3679C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{DE4C121C-35D2-48C0-9569-769B8E1D595F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE4C121C-35D2-48C0-9569-769B8E1D595F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE4C121C-35D2-48C0-9569-769B8E1D595F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{788E072E-FFF4-4304-B895-0FD94E3679C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{788E072E-FFF4-4304-B895-0FD94E3679C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{788E072E-FFF4-4304-B895-0FD94E3679C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{788E072E-FFF4-4304-B895-0FD94E3679C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

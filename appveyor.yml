@@ -30,11 +30,21 @@ install:
 before_build:
   - cmd: make --version
   - cmd: make database DBSERVER="(local)\SQL2017" DBUSER=migration-runner DBPASSWORD="Passw0rd12!"
-  - cmd: make cleanup-db DBSERVER="(local)\SQL2017" DBUSER=migration-runner
+  
 
 build_script:
   - cmd: make build
   - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
+
+before_test:
+  - ps: [Environment]::SetEnvironmentVariable("identityConnection", "Server=(local)\SQL2017;Database=identity;User ID=migration-runner;Password=Passw0rd12!", "Machine")
+  - ps: RefreshEnv
+
+test:
+  - cmd: make test
+
+after_test:
+  - cmd: make cleanup-db DBSERVER="(local)\SQL2017" DBUSER=migration-runner
 
 artifacts:
   - path: '**\*.nupkg' # push all *.nupkg files in build directory recursively
