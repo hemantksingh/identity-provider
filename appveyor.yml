@@ -34,18 +34,13 @@ before_build:
 build_script:
   - cmd: make build
 
-before_test:
+after_build:
   - ps: | 
         [Environment]::SetEnvironmentVariable("identityConnection", "Server=(local)\SQL2017;Database=identity;User ID=migration-runner;Password=Passw0rd12!", "Machine")
   - ps: RefreshEnv
-
-test:
-  assemblies:
-    - tests-identity-provider.dll
-
-after_test:
+  - cmd: make test
   - cmd: make cleanup-db DBSERVER="(local)\SQL2017" DBUSER=migration-runner
   - cmd: make package CONFIGURATION=Release BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%
-
+  
 artifacts:
   - path: '**\*.nupkg' # push all *.nupkg files in build directory recursively
