@@ -43,6 +43,8 @@ namespace tests_identity_provider.DbIntegration
 				.Generate();
 
 			_userRepository.AddUser(user);
+
+			Assert.NotNull(_userRepository.GetByUsername(user.UserName));
 		}
 	}
 }
