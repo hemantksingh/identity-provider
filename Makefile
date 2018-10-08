@@ -46,5 +46,9 @@ database: configure-db
 	--db=SqlServer \
 	-c=$(CONNECTION_STRING)
 
+database1: configure-db
+	cd src/identity-provider-sql-migrations && dotnet build
+	powershell ".\db\migratedb.ps1 -target src\identity-provider-sql-migrations\bin\Debug\netcoreapp2.0\identity-provider-sql-migrations.dll -connectionString $(CONNECTION_STRING)"
+
 cleanup-db:
 	powershell "./db/cleanup.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser \"$(DBUSER)\""

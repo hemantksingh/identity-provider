@@ -29,7 +29,7 @@ install:
   
 before_build:
   - cmd: make --version
-  - cmd: make database DBSERVER="(local)\SQL2017" DBUSER=migration-runner DBPASSWORD="Passw0rd12!"
+  - cmd: make database1 DBSERVER="(local)\SQL2017" DBUSER=migration-runner DBPASSWORD="Passw0rd12!"
 
 build_script:
   - cmd: make build
