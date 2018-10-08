@@ -44,7 +44,7 @@ namespace tests_identity_provider.DbIntegration
 
 			_userRepository.AddUser(user);
 
-			Assert.NotNull(_userRepository.GetByUsername(user.UserName));
+			Assert.NotNull(_userRepository.GetByUsername(user.Username));
 		}
 	}
 }
