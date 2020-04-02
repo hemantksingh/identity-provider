@@ -41,7 +41,6 @@ else
 endif
 
 database: configure-db
-	
 	cd src/identity-provider-sql-migrations && dotnet build
 	~/.nuget/packages/fluentmigrator.console/3.0.0/net461/any/Migrate.exe \
 	--target="src\identity-provider-sql-migrations\bin\Debug\netcoreapp2.0\identity-provider-sql-migrations.dll" \
