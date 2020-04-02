@@ -33,13 +33,15 @@ run:
 	dotnet run
 
 configure-db:
+	nuget install shellpower.sqlserver -version 1.0.9 -outputdirectory $(PUBLISH_DIR)
 ifdef DBUSER
-	powershell "./db/configure.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser \"$(DBUSER)\" -dbPassword \"$(DBPASSWORD)\""
+	powershell ". $(PUBLISH_DIR)\packages\bin\sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); Add-DbUser -dbUser \"$(DBUSER)\" -dbPassword \"$(DBPASSWORD)\""
 else
 	@echo "Using trusted connection"
 endif
 
 database: configure-db
+	
 	cd src/identity-provider-sql-migrations && dotnet build
 	~/.nuget/packages/fluentmigrator.console/3.0.0/net461/any/Migrate.exe \
 	--target="src\identity-provider-sql-migrations\bin\Debug\netcoreapp2.0\identity-provider-sql-migrations.dll" \
