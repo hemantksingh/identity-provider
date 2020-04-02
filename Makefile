@@ -35,7 +35,7 @@ run:
 configure-db:
 	nuget install shellpower.sqlserver -version 1.0.9 -outputdirectory $(PUBLISH_DIR)
 ifdef DBUSER
-	powershell ". $(PUBLISH_DIR)\shellpower.sqlserver.1.0.9\bin\sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); Add-DbUser -name \"$(DBUSER)\" -password \"$(DBPASSWORD)\""
+	powershell ". $(PUBLISH_DIR)\shellpower.sqlserver.1.0.9\bin\sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); Add-DbUser -name \"$(DBUSER)\" -password \"$(DBPASSWORD)\" -serverRoles @(\"dbcreator\", \"sysadmin\")"
 else
 	@echo "Using trusted connection"
 endif
