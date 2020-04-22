@@ -1,5 +1,9 @@
+branches:
+  only:
+    - master
+
 image:
-- Visual Studio 2017
+- Visual Studio 2019
 
 services:
   - mssql2017

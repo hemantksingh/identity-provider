@@ -33,8 +33,8 @@ namespace identity_provider
 			TenantRepository tenantRepository,
 			UserRepository userRepository)
 		{
-			loggerFactory.AddConsole();
-			loggerFactory.AddDebug();
+			//loggerFactory.AddConsole();
+			//loggerFactory.AddDebug();
 
 			var logger = loggerFactory.CreateLogger<Startup>();
 			logger.LogInformation("Configuring the application");

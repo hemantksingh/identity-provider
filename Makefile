@@ -32,11 +32,18 @@ run:
 	cd src/identity-provider && \
 	dotnet run
 
+SQLSERVER_PACKAGE=shellpower.sqlserver
+SQLSERVER_PACKAGE_VERSION=1.0.9
+PACAKGE=$(SQLSERVER_PACKAGE).$(SQLSERVER_PACKAGE_VERSION)
 configure-db:
+	nuget install $(SQLSERVER_PACKAGE) -version $(SQLSERVER_PACKAGE_VERSION) -outputdirectory $(PUBLISH_DIR)
 ifdef DBUSER
-	powershell "./db/configure.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser \"$(DBUSER)\" -dbPassword \"$(DBPASSWORD)\""
+	powershell ". $(PUBLISH_DIR)\$(PACAKGE)/bin/sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); \
+		Add-DbUser -name \"$(DBUSER)\" -password \"$(DBPASSWORD)\" -serverRoles @(\"dbcreator\", \"sysadmin\")"
 else
 	@echo "Using trusted connection"
+	powershell ". $(PUBLISH_DIR)\$(PACAKGE)/bin/sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); \
+		Create-Db -server (new-object Microsoft.SqlServer.Management.Smo.Server(\"$(DBSERVER)\")) -name $(DBNAME)"
 endif
 
 database: configure-db
@@ -47,4 +54,4 @@ database: configure-db
 	-c=$(CONNECTION_STRING)
 
 cleanup-db:
-	powershell "./db/cleanup.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME) -dbUser \"$(DBUSER)\""
+	powershell ". $(PUBLISH_DIR)\$(PACAKGE)/bin/sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); Remove-DbUser \"$(DBUSER)\""
