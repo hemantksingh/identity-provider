@@ -38,9 +38,12 @@ PACAKGE=$(SQLSERVER_PACKAGE).$(SQLSERVER_PACKAGE_VERSION)
 configure-db:
 	nuget install $(SQLSERVER_PACKAGE) -version $(SQLSERVER_PACKAGE_VERSION) -outputdirectory $(PUBLISH_DIR)
 ifdef DBUSER
-	powershell ". $(PUBLISH_DIR)\$(PACAKGE)/bin/sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); Add-DbUser -name \"$(DBUSER)\" -password \"$(DBPASSWORD)\" -serverRoles @(\"dbcreator\", \"sysadmin\")"
+	powershell ". $(PUBLISH_DIR)\$(PACAKGE)/bin/sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); \
+		Add-DbUser -name \"$(DBUSER)\" -password \"$(DBPASSWORD)\" -serverRoles @(\"dbcreator\", \"sysadmin\")"
 else
 	@echo "Using trusted connection"
+	powershell ". $(PUBLISH_DIR)\$(PACAKGE)/bin/sqlserver.ps1 -dbServer \"$(DBSERVER)\" -dbName $(DBNAME); \
+		Create-Db -server (new-object Microsoft.SqlServer.Management.Smo.Server(\"$(DBSERVER)\")) -name $(DBNAME)"
 endif
 
 database: configure-db
